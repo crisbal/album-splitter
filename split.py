@@ -60,7 +60,7 @@ if __name__ == "__main__":
   print("Tracks file parsed")
 
   print("Loading MP3")
-  album = AudioSegment.from_mp3("album.mp3")
+  album = AudioSegment.from_mp3(FILENAME)
   print("MP3 Loaded")
 
   tracksStarts.append(len(album)) #we need this for the last track/split
