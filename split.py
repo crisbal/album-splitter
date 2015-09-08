@@ -1,8 +1,41 @@
 from pydub import AudioSegment
 import eyed3
-import re
-import os
-import argparse
+import os, sys
+import re, argparse, urlparse
+import youtube_dl
+
+##youtube_dl configuration
+class MyLogger(object):
+    def debug(self, msg):
+        pass
+
+    def warning(self, msg):
+        pass
+
+    def error(self, msg):
+        print(msg)
+
+def my_hook(d):
+    if d['status'] == 'downloading':
+        sys.stdout.write('\r\033[K')
+        sys.stdout.write('\tDownloading video | ETA: ' + str(d["eta"]) + " seconds")
+        sys.stdout.flush()
+    elif d['status'] == 'finished':
+        sys.stdout.write('\r\033[K')
+        sys.stdout.write('\tDownload complete\n\tConverting video to mp3')
+        sys.stdout.flush()
+
+ydl_opts = {
+    'format': 'bestaudio/best',
+    'outtmpl': '%(id)s.%(ext)s',
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '0',
+    }],
+    'logger': MyLogger(),
+    'progress_hooks': [my_hook],
+}
 
 
 def timeToSeconds(time):
@@ -22,10 +55,10 @@ if __name__ == "__main__":
 
   
   #arg parsing
-  parser = argparse.ArgumentParser(description='Split a single-file MP3 Album into its single tracks.')
+  parser = argparse.ArgumentParser(description='Split a single-file mp3 Album into its tracks.')
   group = parser.add_mutually_exclusive_group(required=True)
-  group.add_argument("-mp3", help="The MP3 file you want to split.", metavar="mp3_file")
-  group.add_argument("-yt", help="The YouTube video you want to download and split.", metavar="youtube_url")
+  group.add_argument("-mp3", help="The .mp3 file you want to split.", metavar="mp3_file")
+  group.add_argument("-yt", help="The YouTube video url you want to download and split.", metavar="youtube_url")
   parser.add_argument("-a", "--artist", help="Specify the artist that the mp3s will be ID3-tagged with. Default: no tag", default=None)
   parser.add_argument("-A",  "--album", help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag", default=None)
   parser.add_argument("-t", "--tracks", help="Specify the tracks file. Default: tracks.txt", default="tracks.txt")
@@ -36,7 +69,11 @@ if __name__ == "__main__":
   YT_URL = args.yt
   ALBUM = args.album
   ARTIST = args.artist
-  FOLDER = args.folder
+
+  if ALBUM and ARTIST and args.folder == "splits":
+    FOLDER = ARTIST + " - " + ALBUM
+  else:
+    FOLDER = args.folder
 
   #create destination folder
   if not os.path.exists(FOLDER):
@@ -59,9 +96,20 @@ if __name__ == "__main__":
       tracksTitles.append(tTitle) 
   print("Tracks file parsed")
 
-  print("Loading MP3")
-  album = AudioSegment.from_mp3(FILENAME)
-  print("MP3 Loaded")
+  if YT_URL:
+    url_data = urlparse.urlparse(YT_URL)
+    query = urlparse.parse_qs(url_data.query)
+    videoID = query["v"][0]
+    FILENAME = videoID + ".mp3"
+    #opts=['--extract-audio','--audio-format', 'mp3', '--audio-quality', '0', YT_URL.decode('utf-8'), '-o', FILENAME.decode('utf-8')]
+    print("Downloading video from YouTube")
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+      ydl.download(['http://www.youtube.com/watch?v=' + videoID])
+    print("\nConversion to mp3 complete")
+
+  print("Loading .mp3 file")
+  album = AudioSegment.from_file(FILENAME, 'mp3')
+  print(".mp3 file loaded")
 
   tracksStarts.append(len(album)) #we need this for the last track/split
   tracksTitles.append("END") 
@@ -86,3 +134,5 @@ if __name__ == "__main__":
       song.tag.track_num = i+1
       song.tag.save()
   print("All Done")
+
+
