@@ -52,55 +52,63 @@ def timeToSeconds(time):
 
 
 def findTrackSection(lines):
-	while lines:
-		line = lines[0]
-		if 'Track listing[edit]' in line:
-			return True
-		else:
-			del lines[0]
-	return False
+  while lines:
+    line = lines[0]
+    if 'Track listing[edit]' in line:
+      return True
+    else:
+      del lines[0]
+  return False
 
 
 def findTrackTable(lines):
-	while lines:
-		line = lines[0]
-		if 'No.' in line:
-			del lines[0]
-			return True
-		else:
-			del lines[0]
-	return False
+  while lines:
+    line = lines[0]
+    if 'No.' in line:
+      del lines[0]
+      return True
+    else:
+      del lines[0]
+  return False
 
 
 def writeWikiToTracks(track_times, track_titles):
-	track_file = open('tracks.txt', 'w')
-	text = ""
-	for num in range(len(track_times)):
-		text += (track_times[num] + ' - ' + track_titles[num] + '\n')
-	track_file.seek(0)
-	track_file.write(text)
-	track_file.truncate()
-	track_file.close()
+  track_file = open('tracks.txt', 'w')
+  text = ""
+  for num in range(len(track_times)):
+    text += (track_times[num] + ' - ' + track_titles[num] + '\n')
+    track_file.seek(0)
+    track_file.write(text)
+    track_file.truncate()
+    track_file.close()
 
 
 def wikiLookup(url):
-	os.system('lynx -dump -nolist \''+ url + '\' > ./.tmp.txt')
-	wiki_file = open('.tmp.txt')
-	lines = wiki_file.readlines()
-	track_times = []
-	track_titles = []
-	if findTrackSection(lines) and findTrackTable(lines):
-		while lines:
-			line = lines[0]
-			read_title = re.search('\"[^\"]*\"', line)
-			read_time = re.search('\d*:\d\d', line)
-			if not read_time:
-				break
-			track_times.append(read_time.group(0))
-			track_titles.append(read_title.group(0))
-			del lines[0]
-	writeWikiToTracks(track_times, track_titles)
-	os.remove('./.tmp.txt')
+  try:
+    os.system('lynx -dump -nolist \''+ url + '\' > ./.tmp.txt')
+  except OSError:
+    print("OSError occured, check if you have lynx browser properly installed.")
+    return
+
+  wiki_file = open('.tmp.txt')
+  lines = wiki_file.readlines()
+  track_times = []
+  track_titles = []
+  if findTrackSection(lines) and findTrackTable(lines):
+    while lines:
+      line = lines[0]
+      read_title = re.search('\"[^\"]*\"', line)
+      read_time = re.search('\d*:\d\d', line)
+      if not read_time:
+        break
+      track_times.append(read_time.group(0))
+      track_titles.append(read_title.group(0))
+      del lines[0]
+  writeWikiToTracks(track_times, track_titles)
+  os.remove('./.tmp.txt')
+  else:
+    print("Wikipedia page was not read correctly, check if page has track listing section")
+    print("Defaulting to current tracks.txt file")
 
 
 if __name__ == "__main__":
