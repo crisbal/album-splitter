@@ -88,10 +88,8 @@ def lookup(url):
   track_times = []
   for line in song_lines:
     if(line.find_all('div')):
-      print("here")
       break
     track_titles.append(extract_title(line))
-    print(line.contents)
     track_times.append(line.contents[5].contents[0])
   writeTracksToFile(track_times, track_titles)
   return True
