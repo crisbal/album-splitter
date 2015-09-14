@@ -52,46 +52,50 @@ def timeToSeconds(time):
   return seconds
 
 
-def updateTimeChange(tt, track_time):
-  H = int(tt[:1])
-  M = int(tt[2:4])
-  S = int(tt[5:7])
+def updateTimeChange(time_elapsed, track_time):
+  elapsed_h = int(time_elapsed[:1])
+  elapsed_m = int(time_elapsed[2:4])
+  elapsed_s = int(time_elapsed[5:7])
   # 1:23 -> 01:23
   if(len(track_time) == 4):
    track_time = "0" + track_time
-  TM = int(track_time[:2])
-  TS = int(track_time[3:])
-  NM = M + TM
-  NS = S + TS
+  #get track length
+  track_m = int(track_time[:2])
+  track_s = int(track_time[3:])
+  #add track length to elapsed time
+  elapsed_m = elapsed_m + track_m
+  elapsed_s = elapsed_s + track_s
 
-  if NM >= 60:
-    NM -= 60
-    H += 1
-  elif NS >= 60:
-    NS -= 60
-    NM +=1
-  SM = ""
-  SS = ""
-  if NM < 10:
-    SM = "0" + str(NM)
+  if elapsed_m >= 60:
+    elapsed_m -= 60
+    elapsed_h += 1
+  elif elapsed_s >= 60:
+    elapsed_s -= 60
+    elapsed_m +=1
+
+  str_m = ""
+  str_s = ""
+  #1->01
+  if elapsed_m < 10:
+    str_m = "0" + str(elapsed_m)
   else:
-    SM = str(NM)
+    str_m = str(elapsed_m)
 
-  if NS < 10:
-    SS = "0" + str(NS)
+  if elapsed_s < 10:
+    str_s = "0" + str(elapsed_s)
   else:
-    SS = str(NS)
+    str_s = str(elapsed_s)
 
-  return "" + str(H) + ':' + SM + ':' + SS 
+  return str(elapsed_h) + ':' + str_m + ':' + str_s 
   
 
 def writeWikiToTracks(track_times, track_titles):
   track_file = open('tracks.txt', 'w')
-  tt = "0:00:00"
+  time_elapsed = "0:00:00"
   text = ""
   for num in range(len(track_times)):
-    text += (tt + ' - ' + str(track_titles[num]) + '\n')
-    tt = updateTimeChange(tt, track_times[num])
+    text += (time_elapsed + ' - ' + str(track_titles[num]) + '\n')
+    time_elapsed = updateTimeChange(time_elapsed, track_times[num])
 
   track_file.seek(0)
   track_file.write(text)
