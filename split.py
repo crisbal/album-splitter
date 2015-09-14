@@ -107,11 +107,9 @@ def extract_from_unicode(title):
   u = title.encode('utf-8', 'ignore')
   return re.findall('"([^"]*)"', u)[0]
 
-
 def extract_linked_title(linked_title):
    l = linked_title.contents[3].contents[1].contents[0]
    return l
-
 
 def extract_title(track_line):
   if(len(track_line.contents[3].contents) > 1):
@@ -121,12 +119,14 @@ def extract_title(track_line):
     title = extract_from_unicode(track_line.contents[3].contents[0])
   return title
 
-
 def wikiLookup(url):
   page_html = urllib2.urlopen(url).read()
   soup = BeautifulSoup(page_html, 'html.parser')
-  song_table = soup.find_all(class_='tracklist')[0]
-  song_lines = song_table.find_all('tr')
+  song_table = soup.find_all(class_='tracklist')
+  if not song_table:
+    return None
+
+  song_lines = song_table[0].find_all('tr')
   #first line of table is a header
   del(song_lines[0])
   track_titles = []
@@ -141,7 +141,6 @@ def wikiLookup(url):
 if __name__ == "__main__":
   print("Starting")
 
-
   #arg parsing
   parser = argparse.ArgumentParser(description='Split a single-file mp3 Album into its tracks.')
   group = parser.add_mutually_exclusive_group(required=True)
@@ -151,7 +150,7 @@ if __name__ == "__main__":
   parser.add_argument("-A",  "--album", help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag", default=None)
   parser.add_argument("-t", "--tracks", help="Specify the tracks file. Default: tracks.txt", default="tracks.txt")
   parser.add_argument("-f", "--folder", help="Specify the folder the mp3s will be put in. Default: splits/", default="splits")
-  parser.add_argument("-u", "--wikiurl", help="URL of wikipedia page with album track list table.", default=None)
+  parser.add_argument("-w", "--wikiurl", help="URL of wikipedia page with album track list table.", default=None)
 
   args = parser.parse_args()
   TRACKS_FILE =  args.tracks
@@ -167,8 +166,10 @@ if __name__ == "__main__":
     FOLDER = args.folder
 
   if WIKI_URL:
-    print("Parsing " + WIKI_URL)
-    wikiLookup(WIKI_URL)
+    print("Parsing Wiki: " + WIKI_URL)
+    if not wikiLookup(WIKI_URL):
+      print("Can't find a track list in the provided Wiki Page. Shutting Down.")
+      exit()
 
   #create destination folder
   if not os.path.exists(FOLDER):
