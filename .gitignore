@@ -1,1 +1,4 @@
 venv/
+*.pyc
+*.mp3
+splits/
