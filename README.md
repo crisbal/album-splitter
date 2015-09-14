@@ -70,6 +70,18 @@ These songs are already mp3-tagged with their track name and track number, but n
 3. I execute ```python splits.py -mp3 DogsEatingDogsAlbum.mp3 --album "Dogs Eating Gods" --artist "blink-182" --folder "2012 - Dogs Eating Dogs"```
 4. The program will execute, it will split the album, and mp3-tag each track with the author and  the album name I passed as a parameter (as well as track number and name). It will also put the files in the folder passed as an argument (instead of putting them in the default ```splits``` folder)
 
+### Downloading and splitting an album from YouTube using a tracklist pulled from Wikipedia
+1. This is the album I want to download and split: https://www.youtube.com/watch?v=p_uqD4ng9hw
+2. This is the wikipedia page that has the album tracklist: https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs
+3. I execute ``` python split.py -yt https://www.youtube.com/watch?v=p_uqD4ng9hw -w https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs``` and wait
+4. Once the process is complete I open ```splits``` and I find all my songs:
+```
+    When I Was Young.mp3 
+    ...
+    Pretty Little Girl.mp3
+```
+These songs are already mp3-tagged with their track name and track number, but not their author or their album, since we have not specified it.
+
 ### Show an help page for the script
 ``` python split.py -h ```
 
