@@ -13,7 +13,7 @@ This script is for you!
     * pip install -r requirements.txt
 
 
-## How to use (from a local album)
+## Quick guide (from a local album)
 
 1. Open tracks.txt
 2. Add tracks info in this format:
@@ -27,7 +27,7 @@ This script is for you!
 5. ????
 6. You will find yout tracks in the "splits" folder 
 
-## How to use (from a YouTube video)
+## Quick guide (from a YouTube video)
 
 1. Copy the YouTube URL of the album you want to download and split 
 2. Find in the YouTube comments the tracklist with start-time and title
@@ -72,7 +72,7 @@ These songs are already mp3-tagged with their track name and track number, but n
 
 ### Downloading and splitting an album from YouTube using a tracklist pulled from Wikipedia
 1. This is the album I want to download and split: https://www.youtube.com/watch?v=p_uqD4ng9hw
-2. This is the wikipedia page that has the album tracklist: https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs
+2. This is the Wikipedia page that has the album tracklist: https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs
 3. I execute ``` python split.py -yt https://www.youtube.com/watch?v=p_uqD4ng9hw -w https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs``` and wait
 4. Once the process is complete I open ```splits``` and I find all my songs:
 ```
@@ -81,6 +81,8 @@ These songs are already mp3-tagged with their track name and track number, but n
     Pretty Little Girl.mp3
 ```
 These songs are already mp3-tagged with their track name and track number, but not their author or their album, since we have not specified it.
+
+The same works for the ```-amz``` (```--amazon```) parameter, instead you have to provide a link to Amazon.
 
 ### Show an help page for the script
 ``` python split.py -h ```
@@ -93,9 +95,7 @@ These songs are already mp3-tagged with their track name and track number, but n
 5. Have fun!
 
 ## TODO
-* Support track duration time instead of track start time (some people may prefer this)
-* Automatically spilt songs based on pauses/silences in the album (? I don't know if this could be hard to implement).
-* Easier way to edit ```tracks.txt``` format
+Check the ```Issues``` page
 
 ## Need help?
 
