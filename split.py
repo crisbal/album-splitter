@@ -75,7 +75,7 @@ def updateTimeChange(time_elapsed, track_time):
 
   str_m = ""
   str_s = ""
-  #1->01
+  #1 -> 01 
   if elapsed_m < 10:
     str_m = "0" + str(elapsed_m)
   else:
@@ -105,11 +105,6 @@ def writeWikiToTracks(track_times, track_titles):
 
 def extract_from_unicode(title):
   u = title.encode('utf-8', 'ignore')
-  return re.findall('"([^"]*)"', u[0])
-
-
-def extract_from_unicode(title):
-  u = title.encode('utf-8', 'ignore')
   return re.findall('"([^"]*)"', u)[0]
 
 
@@ -125,6 +120,7 @@ def extract_title(track_line):
   else:
     title = extract_from_unicode(track_line.contents[3].contents[0])
   return title
+
 
 def wikiLookup(url):
   page_html = urllib2.urlopen(url).read()
@@ -171,6 +167,7 @@ if __name__ == "__main__":
     FOLDER = args.folder
 
   if WIKI_URL:
+    print("Parsing " + WIKI_URL)
     wikiLookup(WIKI_URL)
 
   #create destination folder
