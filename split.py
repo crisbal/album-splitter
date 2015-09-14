@@ -4,7 +4,7 @@ import os, sys
 import re, argparse, urlparse
 import youtube_dl
 
-import WikiParser
+import WikiParser, AmazonParser
 
 ##youtube_dl configuration
 class MyLogger(object):
@@ -63,7 +63,9 @@ if __name__ == "__main__":
   parser.add_argument("-A",  "--album", help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag", default=None)
   parser.add_argument("-t", "--tracks", help="Specify the tracks file. Default: tracks.txt", default="tracks.txt")
   parser.add_argument("-f", "--folder", help="Specify the folder the mp3s will be put in. Default: splits/", default="splits")
-  parser.add_argument("-w", "--wikiurl", help="URL of wikipedia page with album track list table.", default=None)
+  group = parser.add_mutually_exclusive_group()
+  group.add_argument("-wiki", "--wikipedia", help="Get tracks details from Wikipedia: URL of a Wikipedia's page with an album track list table.", default=None)
+  group.add_argument("-amz", "--amazon", help="Get tracks details from Amazon: URL of the Amazon's page of the album.", default=None)
 
   args = parser.parse_args()
   TRACKS_FILE =  args.tracks
@@ -71,7 +73,8 @@ if __name__ == "__main__":
   YT_URL = args.yt
   ALBUM = args.album
   ARTIST = args.artist
-  WIKI_URL = args.wikiurl
+  WIKI_URL = args.wikipedia
+  AMZ_URL = args.amazon
 
   if ALBUM and ARTIST and args.folder == "splits":
     FOLDER = ARTIST + " - " + ALBUM
@@ -82,6 +85,11 @@ if __name__ == "__main__":
     print("Parsing Wiki: " + WIKI_URL)
     if not WikiParser.lookup(WIKI_URL):
       print("Can't find a track list in the provided Wiki Page. Shutting Down.")
+      exit()
+  elif AMZ_URL:
+    print("Parsing AMZ: " + AMZ_URL)
+    if not AmazonParser.lookup(AMZ_URL):
+      print("Can't find a track list in the provided Amazon Page. Shutting Down.")
       exit()
 
   #create destination folder
