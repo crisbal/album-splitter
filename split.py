@@ -1,31 +1,32 @@
 from pydub import AudioSegment
-import eyed3
+from urllib.parse import urlparse, parse_qs
+from mutagen.easyid3 import EasyID3
+from youtube_dl import YoutubeDL
 import os, sys
-import re, argparse, urlparse
-import youtube_dl
+import re, argparse
 
 import WikiParser, AmazonParser
 
 ##youtube_dl configuration
 class MyLogger(object):
-    def debug(self, msg):
-        pass
+  def debug(self, msg):
+    pass
 
-    def warning(self, msg):
-        pass
+  def warning(self, msg):
+    pass
 
-    def error(self, msg):
-        print(msg)
+  def error(self, msg):
+    print(msg)
 
 def my_hook(d):
-    if d['status'] == 'downloading':
-        sys.stdout.write('\r\033[K')
-        sys.stdout.write('\tDownloading video | ETA: ' + str(d["eta"]) + " seconds")
-        sys.stdout.flush()
-    elif d['status'] == 'finished':
-        sys.stdout.write('\r\033[K')
-        sys.stdout.write('\tDownload complete\n\tConverting video to mp3')
-        sys.stdout.flush()
+  if d['status'] == 'downloading':
+    sys.stdout.write('\r\033[K')
+    sys.stdout.write('\tDownloading video | ETA: {} seconds'.format(str(d["eta"])))
+    sys.stdout.flush()
+  elif d['status'] == 'finished':
+    sys.stdout.write('\r\033[K')
+    sys.stdout.write('\tDownload complete\n\tConverting video to mp3')
+    sys.stdout.flush()
 
 ydl_opts = {
     'format': 'bestaudio/best',
@@ -42,13 +43,11 @@ ydl_opts = {
 
 def timeToSeconds(time):
   parts = time.split(":")
-
   seconds = None
   if len(parts) == 3: #h:m:s
     seconds = int(parts[0])*3600 + int(parts[1])*60 + int(parts[2])
   elif len(parts) == 2: #m:s
     seconds = int(parts[0])*60 + int(parts[1])
-
   return seconds
 
 if __name__ == "__main__":
@@ -77,17 +76,17 @@ if __name__ == "__main__":
   AMZ_URL = args.amazon
 
   if ALBUM and ARTIST and args.folder == "splits":
-    FOLDER = ARTIST + " - " + ALBUM
+    FOLDER = '{} - {}'.format(ARTIST, ALBUM)
   else:
     FOLDER = args.folder
 
   if WIKI_URL:
-    print("Parsing Wiki: " + WIKI_URL)
+    print("Parsing Wiki: {}".format(WIKI_URL))
     if not WikiParser.lookup(WIKI_URL):
       print("Can't find a track list in the provided Wiki Page. Shutting Down.")
       exit()
   elif AMZ_URL:
-    print("Parsing AMZ: " + AMZ_URL)
+    print("Parsing AMZ: {}".format(AMZ_URL))
     if not AmazonParser.lookup(AMZ_URL):
       print("Can't find a track list in the provided Amazon Page. Shutting Down.")
       exit()
@@ -114,15 +113,17 @@ if __name__ == "__main__":
   print("Tracks file parsed")
 
   if YT_URL:
-    url_data = urlparse.urlparse(YT_URL)
-    query = urlparse.parse_qs(url_data.query)
+    url_data = urlparse(YT_URL)
+    query = parse_qs(url_data.query)
     videoID = query["v"][0]
     FILENAME = videoID + ".mp3"
-    #opts=['--extract-audio','--audio-format', 'mp3', '--audio-quality', '0', YT_URL.decode('utf-8'), '-o', FILENAME.decode('utf-8')]
-    print("Downloading video from YouTube")
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-      ydl.download(['http://www.youtube.com/watch?v=' + videoID])
-    print("\nConversion to mp3 complete")
+    if not os.path.isfile(FILENAME) :
+        print("Downloading video from YouTube")
+        with YoutubeDL(ydl_opts) as ydl:
+          ydl.download(['http://www.youtube.com/watch?v=' + videoID])
+        print("\nConversion to mp3 complete")
+    else:
+        print("Found matching mp3 file")
 
   print("Loading .mp3 file")
   album = AudioSegment.from_file(FILENAME, 'mp3')
@@ -134,22 +135,22 @@ if __name__ == "__main__":
   print("Starting to split")
   for i, track in enumerate(tracksTitles):
     if i != len(tracksTitles)-1:
-      print("\t" + str(i+1) + ") " + track)
+      print("\t{}) {}".format(str(i+1),track))
       start = tracksStarts[i]
       end = tracksStarts[i+1]
       duration = end-start
-      album[start:][:duration].export( FOLDER + "/" + track + ".mp3", format="mp3")
+      track_path = '{}/{}.mp3'.format(FOLDER, track)
+      album[start:][:duration].export(track_path, format="mp3")
 
       print("\t\tTagging")
-      song = eyed3.load(FOLDER + "/" + track + ".mp3")
+      song = EasyID3(track_path)
       if ARTIST:
-        song.tag.artist = ARTIST.decode('utf-8')
+          song['artist'] = ARTIST
       if ALBUM:
-        song.tag.album = ALBUM.decode('utf-8')
-
-      song.tag.title = track.decode('utf-8')
-      song.tag.track_num = i+1
-      song.tag.save()
+          song['album'] = ALBUM
+      song['title'] = track
+      song['tracknumber'] = str(i+1)
+      song.save()
   print("All Done")
 
 

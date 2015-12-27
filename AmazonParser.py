@@ -2,12 +2,12 @@
 #
 # AUTHOR: https://github.com/crisbal
 
-import urllib2
+from urllib.request import build_opener
 from bs4 import BeautifulSoup
 import re
 
 def lookup(url):
-  opener = urllib2.build_opener()
+  opener = build_opener()
   opener.addheaders = [('User-agent', 'Album-Splitter')]
   page_html = opener.open(url).read()
   page = BeautifulSoup(page_html, 'html.parser')
@@ -33,7 +33,7 @@ def updateTimeChange(time_elapsed, track_time):
   elapsed_s = int(time_elapsed[5:7])
   # 1:23 -> 01:23
   if(len(track_time) == 4):
-   track_time = "0" + track_time
+    track_time = "0" + track_time
   #get track length
   track_m = int(track_time[:2])
   track_s = int(track_time[3:])
@@ -61,7 +61,7 @@ def updateTimeChange(time_elapsed, track_time):
   else:
     str_s = str(elapsed_s)
 
-  return str(elapsed_h) + ':' + str_m + ':' + str_s 
+    return '{}:{}:{}'.format(str(elapsed_h, str_m, str_s))
 
 #Thanks https://github.com/inondle
 def writeTracksToFile(track_times, track_titles):

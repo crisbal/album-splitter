@@ -2,10 +2,34 @@
 #
 # AUTHOR: https://github.com/inondle
 
-import urllib2
+from urllib.request import build_opener
 from bs4 import BeautifulSoup
 
 import re
+
+def lookup(url):
+  opener = build_opener()
+  opener.addheaders = [('User-agent', 'Album-Splitter')]
+  page_html = opener.open(url).read()
+  soup = BeautifulSoup(page_html, 'html.parser')
+  song_table = soup.find_all(class_='tracklist')
+  if not song_table:
+    return None
+
+  rows = song_table[0].find_all('tr')
+  #first line of table is a header
+  length_column = find_length_column(rows[0])
+  del(rows[0])
+  track_titles = []
+  track_times = []
+  for row in rows:
+    try:
+        track_titles.append(extract_title(row))
+    except(TypeError):
+        break
+    track_times.append(row.contents[length_column].contents[0])
+  writeTracksToFile(track_times, track_titles)
+  return True
 
 def updateTimeChange(time_elapsed, track_time):
   elapsed_h = int(time_elapsed[:1])
@@ -41,16 +65,17 @@ def updateTimeChange(time_elapsed, track_time):
   else:
     str_s = str(elapsed_s)
 
-  return str(elapsed_h) + ':' + str_m + ':' + str_s 
+  return '{}:{}:{}'.format(str(elapsed_h), str_m, str_s)
+
   
 
 def writeTracksToFile(track_times, track_titles):
   track_file = open('tracks.txt', 'w')
   time_elapsed = "0:00:00"
   text = ""
-  for num in range(len(track_times)):
-    text += (time_elapsed + ' - ' + str(track_titles[num]) + '\n')
-    time_elapsed = updateTimeChange(time_elapsed, track_times[num])
+  for title, time in zip(track_titles, track_times):
+    text += '{} - {}\n'.format(time_elapsed, str(title))
+    time_elapsed = updateTimeChange(time_elapsed, time)
 
   track_file.seek(0)
   track_file.write(text)
@@ -59,12 +84,11 @@ def writeTracksToFile(track_times, track_titles):
 
 
 def extract_from_unicode(title):
-  u = title.encode('utf-8', 'ignore')
-  return re.findall('"([^"]*)"', u)[0]
+  return re.findall('"([^"]*)"', title)[0]
 
 def extract_linked_title(linked_title):
-   l = linked_title.contents[3].contents[1].contents[0]
-   return l
+  l = linked_title.contents[3].contents[1].contents[0]
+  return l
 
 def extract_title(track_line):
   if(len(track_line.contents[3].contents) > 1):
@@ -74,22 +98,14 @@ def extract_title(track_line):
     title = extract_from_unicode(track_line.contents[3].contents[0])
   return title
 
-def lookup(url):
-  page_html = urllib2.urlopen(url).read()
-  soup = BeautifulSoup(page_html, 'html.parser')
-  song_table = soup.find_all(class_='tracklist')
-  if not song_table:
-    return None
-
-  song_lines = song_table[0].find_all('tr')
-  #first line of table is a header
-  del(song_lines[0])
-  track_titles = []
-  track_times = []
-  for line in song_lines:
-    if(line.find_all('div')):
+def find_length_column(table_header):
+  i = 0
+  for child in table_header.contents:
+    i += 1
+    if child == '\n':
+      continue
+    if 'Length' in child.contents:
       break
-    track_titles.append(extract_title(line))
-    track_times.append(line.contents[5].contents[0])
-  writeTracksToFile(track_times, track_titles)
-  return True
+  return i-1
+
+

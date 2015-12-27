@@ -1,5 +1,6 @@
 beautifulsoup4==4.4.0
-eyeD3==0.7.8
+mutagen==1.31
 pydub==0.14.2
-wsgiref==0.1.2
-youtube-dl==2015.08.09
+urlparse3==1.0.3
+wheel==0.24.0
+youtube-dl==2015.12.23
