@@ -8,8 +8,7 @@ import re
 import argparse
 import WikiParser
 import AmazonParser
-
-# youtube_dl configuration
+import splitutil
 
 
 class MyLogger(object):
@@ -33,6 +32,8 @@ def my_hook(d):
         sys.stdout.write('\tDownload complete\n\tConverting video to mp3')
         sys.stdout.flush()
 
+
+# youtube_dl configuration
 ydl_opts = {
     'format': 'bestaudio/best',
     'outtmpl': '%(id)s.%(ext)s',
@@ -44,16 +45,6 @@ ydl_opts = {
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
 }
-
-
-def timeToSeconds(time):
-    parts = time.split(":")
-    seconds = None
-    if len(parts) == 3:  # h:m:s
-        seconds = int(parts[0])*3600 + int(parts[1])*60 + int(parts[2])
-    elif len(parts) == 2:  # m:s
-        seconds = int(parts[0])*60 + int(parts[1])
-    return seconds
 
 if __name__ == "__main__":
     print("Starting")
@@ -67,6 +58,7 @@ if __name__ == "__main__":
     parser.add_argument("-A",  "--album", help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag", default=None)
     parser.add_argument("-t", "--tracks", help="Specify the tracks file. Default: tracks.txt", default="tracks.txt")
     parser.add_argument("-f", "--folder", help="Specify the folder the mp3s will be put in. Default: splits/", default="splits")
+    parser.add_argument("-d", "--duration", dest='duration', action='store_true', help="Specify track time format will use the duration of each individual song.", default=False)
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-wiki", "--wikipedia", help="Get tracks details from Wikipedia: URL of a Wikipedia's page with an album track list table.", default=None)
     group.add_argument("-amz", "--amazon", help="Get tracks details from Amazon: URL of the Amazon's page of the album.", default=None)
@@ -79,6 +71,7 @@ if __name__ == "__main__":
     ARTIST = args.artist
     WIKI_URL = args.wikipedia
     AMZ_URL = args.amazon
+    DURATION = args.duration
 
     if ALBUM and ARTIST and args.folder == "splits":
         FOLDER = '{} - {}'.format(ARTIST, ALBUM)
@@ -107,14 +100,28 @@ if __name__ == "__main__":
 
     print("Parsing " + TRACKS_FILE)
     with open(TRACKS_FILE) as tracksF:
-        for i, line in enumerate(tracksF):
-            m = regex.match(line)
+        if DURATION:
+            time_elapsed = '0:00:00'
+            for i, line in enumerate(tracksF):
+                m = regex.match(line)
 
-            tStart = timeToSeconds(m.group('start').strip())
-            tTitle = m.group('title').strip()
+                tStart = splitutil.timeToSeconds(time_elapsed)
+                tTitle = m.group('title').strip()
 
-            tracksStarts.append(tStart*1000)
-            tracksTitles.append(tTitle)
+                tracksStarts.append(tStart*1000)
+                tracksTitles.append(tTitle)
+
+                curr_track_time = m.group('start').strip()
+                time_elapsed = splitutil.updateTimeChange(time_elapsed, curr_track_time)
+        else:
+            for i, line in enumerate(tracksF):
+                m = regex.match(line)
+
+                tStart = splitutil.timeToSeconds(m.group('start').strip())
+                tTitle = m.group('title').strip()
+
+                tracksStarts.append(tStart*1000)
+                tracksTitles.append(tTitle)
     print("Tracks file parsed")
 
     if YT_URL:
