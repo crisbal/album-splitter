@@ -33,21 +33,14 @@ def lookup(url):
     return True
 
 
-def extract_from_unicode(title):
-    return re.findall('"([^"]*)"', title)[0]
-
-
-def extract_linked_title(linked_title):
-    l = linked_title.contents[3].contents[1].contents[0]
-    return l
-
-
 def extract_title(track_line):
-    if(len(track_line.contents[3].contents) > 1):
-        # title is linked...
-        title = extract_linked_title(track_line)
+    title = None
+    title_row = track_line.contents[3]
+    if len(title_row.contents) > 1 and not title_row('span'):
+        # Get title from a link
+        title = title_row.contents[1].contents[0]
     else:
-        title = extract_from_unicode(track_line.contents[3].contents[0])
+        title = title_row.contents[0]
     return title
 
 
