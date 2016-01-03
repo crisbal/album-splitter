@@ -6,11 +6,15 @@ This script is for you!
 
 ## How to install
 
-1. Install Python 2
-2. Install pip
-3. Fork/Clone/Download this repository
-4. Install the required packages via pip
-    * pip install -r requirements.txt
+0. Install `ffmpeg` 
+1. Install ```Python 3```
+2. Install ```pip3```
+3. Install ```virtualenv```
+4. Fork/Clone/Download this repository
+5. ```virtualenv -p /usr/bin/python3 venv``` (optional)
+    * ```source venv/bin/activate```
+6. Install the required packages via pip
+    * ```pip install -r requirements.txt```
 
 
 ## Quick guide (from a local album)
