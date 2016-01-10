@@ -9,9 +9,15 @@ import os
 import sys
 import re
 import argparse
-import WikiParser
-import AmazonParser
+
 import splitutil
+
+mdProviders = []
+for module in os.listdir("MetaDataProviders"):
+    if module == "__init__.py" or module[-3:] != ".py" or module=="splitutil.py":
+        continue
+    mdProviders.append(__import__("MetaDataProviders." + module[:-3], fromlist=[""]))
+
 
 
 class MyLogger(object):
@@ -90,9 +96,11 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--duration", dest='duration', action='store_true', help="Specify track time format will use the duration of each individual song. Default: False", default=False)
     parser.add_argument("-th", "--threaded", dest='threaded', action='store_true', help="Specify the script should use threads. Default: False", default=False)
     parser.add_argument("--num-threads", dest='num_threads', help="Specify the (whole/non-negative) number of threads the script should spawn when using threads. Default: 3", default='3')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("-wiki", "--wikipedia", help="Get tracks details from Wikipedia: URL of a Wikipedia's page with an album track list table.", default=None)
-    group.add_argument("-amz", "--amazon", help="Get tracks details from Amazon: URL of the Amazon's page of the album.", default=None)
+    parser.add_argument("-metadata", help="Specify the source for the Album Metadata.", required=True)
+    
+    #group = parser.add_mutually_exclusive_group()
+    #group.add_argument("-wiki", "--wikipedia", help="Get tracks details from Wikipedia: URL of a Wikipedia's page with an album track list table.", default=None)
+    #group.add_argument("-amz", "--amazon", help="Get tracks details from Amazon: URL of the Amazon's page of the album.", default=None)
 
     args = parser.parse_args()
     TRACKS_FILE = args.tracks
@@ -100,31 +108,35 @@ if __name__ == "__main__":
     YT_URL = args.yt
     ALBUM = args.album
     ARTIST = args.artist
-    WIKI_URL = args.wikipedia
-    AMZ_URL = args.amazon
     DURATION = args.duration
     THREADED = args.threaded
     NUM_THREADS = int(args.num_threads)
+    METASRC = args.metadata
+
 
     if ALBUM and ARTIST and args.folder == "splits":
         FOLDER = '{} - {}'.format(ARTIST, ALBUM)
     else:
         FOLDER = args.folder
 
-    if WIKI_URL:
-        print("Parsing Wiki: {}".format(WIKI_URL))
-        if not WikiParser.lookup(WIKI_URL):
-            print("Can't find a track list in the provided Wiki Page. Shutting Down.")
-            exit()
-    elif AMZ_URL:
-        print("Parsing AMZ: {}".format(AMZ_URL))
-        if not AmazonParser.lookup(AMZ_URL):
-            print("Can't find a track list in the provided Amazon Page. Shutting Down.")
-            exit()
-
     # create destination folder
     if not os.path.exists(FOLDER):
         os.makedirs(FOLDER)
+
+    satisfied = False
+    for provider in mdProviders:
+        pattern = re.compile(provider.VALID_URL)
+        if pattern.match(METASRC):
+            if not provider.lookup(METASRC):
+                print("Can't find a track list in the provided source. Shutting Down.")
+                exit()
+            else:
+                satisfied = True
+                break
+
+    if not satisfied:
+        print("There was no provider able to get data from your source")
+        exit() 
 
     tracksStarts = []
     tracksTitles = []

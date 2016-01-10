@@ -8,6 +8,8 @@ import splitutil
 import re
 
 
+VALID_URL = "https?://(?:\w+\.)?amazon\..*/.*"
+
 def lookup(url):
     opener = build_opener()
     opener.addheaders = [('User-agent', 'Album-Splitter')]

@@ -1,14 +1,28 @@
 def updateTimeChange(time_elapsed, track_time):
-    elapsed_h = int(time_elapsed[:1])
-    elapsed_m = int(time_elapsed[2:4])
-    elapsed_s = int(time_elapsed[5:7])
-    # 1:23 -> 01:23
-    if(len(track_time) == 4):
-        track_time = "0" + track_time
+    elapsed = time_elapsed.split(":")
+    if len(elapsed) == 2:
+        elapsed_h = 0
+        elapsed_m = int(elapsed[0])
+        elapsed_s = int(elapsed[1])
+    if len(elapsed) == 3:
+        elapsed_h = int(elapsed[0])
+        elapsed_m = int(elapsed[1])
+        elapsed_s = int(elapsed[2])
+            
+    track = track_time.split(":")
     # get track length
-    track_m = int(track_time[:2])
-    track_s = int(track_time[3:])
+    if len(track) == 2:
+        track_h = 0
+        track_m = int(track[0])
+        track_s = int(track[1])
+    if len(track) == 3:
+        track_h = int(track[0])
+        track_m = int(track[1])
+        track_s = int(track[2])
+    
+
     # add track length to elapsed time
+    elapsed_h = elapsed_h + track_h
     elapsed_m = elapsed_m + track_m
     elapsed_s = elapsed_s + track_s
 
@@ -19,9 +33,15 @@ def updateTimeChange(time_elapsed, track_time):
         elapsed_s -= 60
         elapsed_m += 1
 
+    str_h = ""
     str_m = ""
     str_s = ""
     # 1 -> 01
+    if elapsed_h < 10:
+        str_h = "0" + str(elapsed_h)
+    else:
+        str_h = str(elapsed_h)
+
     if elapsed_m < 10:
         str_m = "0" + str(elapsed_m)
     else:
@@ -32,7 +52,7 @@ def updateTimeChange(time_elapsed, track_time):
     else:
         str_s = str(elapsed_s)
 
-    return '{}:{}:{}'.format(str(elapsed_h), str_m, str_s)
+    return '{}:{}:{}'.format(str_h, str_m, str_s)
 
 
 def timeToSeconds(time):
@@ -47,7 +67,7 @@ def timeToSeconds(time):
 
 def writeTracksToFile(track_times, track_titles):
     track_file = open('tracks.txt', 'w')
-    time_elapsed = "0:00:00"
+    time_elapsed = "00:00:00"
     text = ""
     for title, time in zip(track_titles, track_times):
         text += '{} - {}\n'.format(time_elapsed, str(title))
