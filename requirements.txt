@@ -4,3 +4,4 @@ pydub==0.14.2
 urlparse3==1.0.3
 wheel==0.24.0
 youtube-dl==2015.12.23
+easygui==0.97.4
