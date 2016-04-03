@@ -13,8 +13,6 @@ import WikiParser
 import AmazonParser
 import splitutil
 
-AudioSegment.converter = "C:/Users/James Waters/Documents/PROGRAMS/ffmpeg/bin/ffmpeg.exe"
-
 class MyLogger(object):
     def debug(self, msg):
         pass
@@ -130,7 +128,7 @@ if __name__ == "__main__":
     tracksStarts = []
     tracksTitles = []
 
-    regex = re.compile("(\d*\s\-\s)*(?P<start>\S+)\s*\-\s(?P<title>.+)")
+    regex = re.compile("(\d*\s\-\s)*(?P<start>\S+)\s*\-\s(?P<title>.+)") #Added support for tracklists in the format <track#> - <start> - <title>
 
     print("Parsing " + TRACKS_FILE)
     with open(TRACKS_FILE) as tracksF:
