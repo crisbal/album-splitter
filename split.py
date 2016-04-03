@@ -13,7 +13,6 @@ import WikiParser
 import AmazonParser
 import splitutil
 
-
 class MyLogger(object):
     def debug(self, msg):
         pass
@@ -129,7 +128,7 @@ if __name__ == "__main__":
     tracksStarts = []
     tracksTitles = []
 
-    regex = re.compile("(?P<start>.+)\s*\-\s*(?P<title>.+)")
+    regex = re.compile("(\d*\s\-\s)*(?P<start>\S+)\s*\-\s(?P<title>.+)") #Added support for tracklists in the format <track#> - <start> - <title>
 
     print("Parsing " + TRACKS_FILE)
     with open(TRACKS_FILE) as tracksF:
@@ -149,7 +148,7 @@ if __name__ == "__main__":
         else:
             for i, line in enumerate(tracksF):
                 m = regex.match(line)
-
+				
                 tStart = splitutil.timeToSeconds(m.group('start').strip())
                 tTitle = m.group('title').strip()
 
