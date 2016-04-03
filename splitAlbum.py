@@ -10,11 +10,12 @@ if source == "File":
 else:
     link = "-yt \"" + eg.enterbox(msg="Enter Youtube link", title="Album Splitter", default="", strip=True, image=None, root=None) + "\""
     
-format = eg.choicebox(msg="Select format", title="Album Splitter", choices=("<start time> - <title>", "<start time> <title>"))
+format = eg.choicebox(msg="Select format", title="Album Splitter", choices=("<start time> - <title>", "<start time> <title>")) #More formats can be added
 
 
 tracks = eg.codebox(msg="Paste track list:", title="Album Splitter", text="")
 
+#More formats can be added
 if format == "<start time> - <title>":
     with open("tracks.txt", 'w') as t:
         t.write(tracks)
@@ -33,11 +34,11 @@ if format == "<start time> <title>":
 try:
     cmd = "python split.py " + link
     print(cmd)
-    out = os.system(cmd)
+    out = os.system(cmd) #I couldn't get this to work any other way, unfortunately.
     #print(out)
     #subprocess.call(("python split.py " + link))
     #out_str = subprocess.check_output(cmd, shell=True)
     #subprocess.Popen(cmd, shell=True)
 
 except:
-    eg.exceptionbox(msg="Album Splitter has crashed", title="Album Splitter")
+    eg.exceptionbox(msg="Album Splitter has crashed", title="Album Splitter") #This doesn't actually do anything due to the way the splitter program is currently launched.
