@@ -10,7 +10,7 @@ import re
 
 VALID_URL = "https?://(?:\w+\.)?wikipedia\..*/.*"
 
-def lookup(url):
+def lookup(url, tracks_filename):
     opener = build_opener()
     opener.addheaders = [('User-agent', 'Album-Splitter')]
     page_html = opener.open(url).read()
@@ -34,7 +34,7 @@ def lookup(url):
             except(TypeError):
                 break
             track_times.append(tds[numberOfColumns-1].get_text())
-    splitutil.writeTracksToFile(track_times, track_titles)
+    splitutil.writeTracksToFile(track_times, track_titles, tracks_filename)
     return True
 
 def find_numberOfColumns(table_header):

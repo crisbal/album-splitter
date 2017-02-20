@@ -10,7 +10,7 @@ import re
 
 VALID_URL = "https?://(?:\w+\.)?amazon\..*/.*"
 
-def lookup(url):
+def lookup(url, tracks_filename):
     opener = build_opener()
     opener.addheaders = [('User-agent', 'Album-Splitter')]
     page_html = opener.open(url).read()
@@ -27,5 +27,5 @@ def lookup(url):
     for line in song_lines:
         track_titles.append(line.find(attrs={'class': 'TitleLink'}).text.strip())
         track_times.append(line.find(id=re.compile("dmusic_tracklist_duration.*")).text.strip())
-    splitutil.writeTracksToFile(track_times, track_titles)
+    splitutil.writeTracksToFile(track_times, track_titles, tracks_filename)
     return True

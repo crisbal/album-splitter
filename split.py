@@ -93,16 +93,12 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--artist", help="Specify the artist that the mp3s will be ID3-tagged with. Default: no tag", default=None)
     parser.add_argument("-A",  "--album", help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag", default=None)
     parser.add_argument("-t", "--tracks", help="Specify the tracks file. Default: tracks.txt", default="tracks.txt")
-    parser.add_argument("-f", "--folder", help="Specify the folder the mp3s will be put in. Default: splits/", default="splits")
+    parser.add_argument("-f", "--folder", help="Specify the folder the mp3s will be put in. Default: splits/", default=None)
     parser.add_argument("-d", "--duration", dest='duration', action='store_true', help="Specify track time format will use the duration of each individual song. Default: False", default=False)
     parser.add_argument("-th", "--threaded", dest='threaded', action='store_true', help="Specify the script should use threads. Default: False", default=False)
     parser.add_argument("--num-threads", dest='num_threads', help="Specify the (whole/non-negative) number of threads the script should spawn when using threads. Default: 3", default='3')
-    parser.add_argument("-metadata", help="Specify the source for the Album Metadata.", required=True)
+    parser.add_argument("--metadata", dest='metadata', help="Specify the source for the Album Metadata.", default="file")
     
-    #group = parser.add_mutually_exclusive_group()
-    #group.add_argument("-wiki", "--wikipedia", help="Get tracks details from Wikipedia: URL of a Wikipedia's page with an album track list table.", default=None)
-    #group.add_argument("-amz", "--amazon", help="Get tracks details from Amazon: URL of the Amazon's page of the album.", default=None)
-
     args = parser.parse_args()
     TRACKS_FILE = args.tracks
     FILENAME = args.mp3
@@ -114,9 +110,17 @@ if __name__ == "__main__":
     NUM_THREADS = int(args.num_threads)
     METASRC = args.metadata
 
-
-    if ALBUM and ARTIST and args.folder == "splits":
-        FOLDER = '{} - {}'.format(ARTIST, ALBUM)
+    if args.folder is None:
+        if ALBUM and ARTIST:
+            FOLDER = "{} - {}".format(ARTIST, ALBUM)
+        else:
+            if YT_URL:
+                url_data = urlparse(YT_URL)
+                query = parse_qs(url_data.query)
+                videoID = query["v"][0]
+                FOLDER = "./splits/{}".format(videoID)
+            else:
+                FOLDER = "./splits/{}".format(str(uuid.uuid4())[:16])
     else:
         FOLDER = args.folder
 
@@ -124,20 +128,21 @@ if __name__ == "__main__":
     if not os.path.exists(FOLDER):
         os.makedirs(FOLDER)
 
-    satisfied = False
-    for provider in mdProviders:
-        pattern = re.compile(provider.VALID_URL)
-        if pattern.match(METASRC):
-            if not provider.lookup(METASRC):
-                print("Can't find a track list in the provided source. Shutting Down.")
-                exit()
-            else:
-                satisfied = True
-                break
-
-    if not satisfied:
-        print("There was no provider able to get data from your source")
-        exit() 
+    if METASRC != "file":
+        found_a_source = False
+        for provider in mdProviders:
+            pattern = re.compile(provider.VALID_URL)
+            if pattern.match(METASRC):
+                print("Matched with a metadata provider...")
+                if not provider.lookup(METASRC, TRACKS_FILE):
+                    print("Can't find a track list in the provided source. Shutting Down.")
+                    exit()
+                else:
+                    found_a_source = True
+                    break
+        if not found_a_source:
+            print("There was no provider able to get data from your source!")
+            exit()
 
     tracksStarts = []
     tracksTitles = []

@@ -65,8 +65,8 @@ def timeToSeconds(time):
     return seconds
 
 
-def writeTracksToFile(track_times, track_titles):
-    track_file = open('tracks.txt', 'w')
+def writeTracksToFile(track_times, track_titles, track_filename):
+    track_file = open(track_filename, 'w')
     time_elapsed = "00:00:00"
     text = ""
     for title, time in zip(track_titles, track_times):
