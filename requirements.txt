@@ -2,5 +2,4 @@ beautifulsoup4==4.4.0
 mutagen==1.31
 pydub==0.14.2
 urlparse3==1.0.3
-wheel==0.24.0
-youtube-dl==2015.12.23
+youtube-dl==2017.2.17
