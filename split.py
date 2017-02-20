@@ -43,7 +43,7 @@ def split_song(album, tracksStarts, index, track, FOLDER):
     start = tracksStarts[index]
     end = tracksStarts[index+1]
     duration = end-start
-    track_path = '{}/{}.mp3'.format(FOLDER, track)
+    track_path = '{}/{:02d} - {}.mp3'.format(FOLDER, index+1, track)
     album[start:][:duration].export(track_path, format="mp3")
 
     print("\t\tTagging")
