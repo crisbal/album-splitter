@@ -1,16 +1,20 @@
 from pydub import AudioSegment
-from urllib.parse import urlparse, parse_qs
 from mutagen.easyid3 import EasyID3
+
+from urllib.parse import urlparse, parse_qs
 from youtube_dl import YoutubeDL
+
 from queue import Queue
 from threading import Thread
-import time
+
 import os
 import sys
 import re
 import argparse
+import uuid
 
 import splitutil
+
 
 mdProviders = []
 for module in os.listdir("MetaDataProviders"):
@@ -19,14 +23,11 @@ for module in os.listdir("MetaDataProviders"):
     mdProviders.append(__import__("MetaDataProviders." + module[:-3], fromlist=[""]))
 
 
-
 class MyLogger(object):
     def debug(self, msg):
         pass
-
     def warning(self, msg):
         pass
-
     def error(self, msg):
         print(msg)
 
