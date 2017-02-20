@@ -1,5 +1,6 @@
 venv/
 *.pyc
 *.mp3
+*.wav
 splits/
 __pycache__/
