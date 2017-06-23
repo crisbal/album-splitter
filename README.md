@@ -1,6 +1,6 @@
 # Album-Splitter
 
-Do you have a music album as a single file (locally or on YouTube), with all its tracks joined together? Do you want to split that album in its single tracks? Do you want to tag these tracks so your music player can get all the required infos from them?
+Do you have a music album as a single file (locally or on YouTube), with all its tracks joined together? Do you want to split that album in its single tracks? Do you want to tag these tracks so your music player can get all the required info from them?
 
 This script is for you!
 
@@ -19,33 +19,35 @@ This script is for you!
 
 ## Quick guide (from a local album)
 
-1. Open tracks.txt
-2. Add tracks info in this format:
+1. Create a copy of the tracks.txt.example, rename it as tracks.txt and
+   delete the lines starting with #.
+2. Open tracks.txt
+3. Add tracks info in this format:
     * ```<start-time> - <title>```
     * A track on each line
     * See *Examples* section
-3. Run the script
+4. Run the script
     * Basic usage: ```python split.py -mp3 <path/to/your/album.mp3>```
     * More in the *Examples* section
-4. Wait for the splitting process to complete
-5. ????
-6. You will find yout tracks in the `splits` folder
+5. Wait for the splitting process to complete
+6. You will find your tracks in the `splits` folder
 
 ## Quick guide (from a YouTube video)
 
 1. Copy the YouTube URL of the album you want to download and split
 2. Find in the YouTube comments the tracklist with start-time and title
-3. Open tracks.txt
-4. Copy the tracklist in the file, adjusting for the supported format
+3. Create a copy of the tracks.txt.example, rename it as tracks.txt and
+   delete the lines starting with #.
+4. Open tracks.txt
+5. Copy the tracklist in the file, adjusting for the supported format
     * ```<start-time> - <title>```
     * A track on each line
-5. Run the script
+6. Run the script
     * Basic usage: ```python split.py -yt <youtube_url>```
     * More in the *Examples* section
-4. Wait for the Download and for the conversion
-5. Wait for the splitting process to complete
-5. ????
-6. You will find yout tracks in the `splits` folder
+7. Wait for the Download and for the conversion
+8. Wait for the splitting process to complete
+9. You will find your tracks in the `splits` folder
 
 ## Examples
 
@@ -112,7 +114,7 @@ If you need any help just create an Issue or send me an email at the address you
 If you want to improve the code and submit a pull request feel free to do so.
 
 
-## Licensce
+## Licence
 
 GPL v3
 

@@ -3,8 +3,10 @@ import re
 
 NOISE = [
     ' - ',
-    '[0-9]{1,2}\.',
-    '^[0-9]{1,2} ',
+    '^-',
+    '(?:-)?[0-9]{1,2} - ',
+    '(?:-)?[0-9]{1,2}\.',
+    '(?:-)?[0-9]{1,2} ',
 ]
 
 
@@ -30,10 +32,8 @@ def all_matching_regex(s):
         # Explanation:                     HH optional          MM   and   SS required
         regex = re.compile('(?P<start>(?:([01]?\d|2[0-3]):)?([0-5]?\d):([0-5]?\d))')
         start_time = regex.search(s).group('start')
-        title = re.sub('|'.join(NOISE), '', regex.sub('', s)).strip()
+        title = re.sub('|'.join(NOISE), '', regex.sub('', s, count=1)).strip()
         return start_time, title
     except AttributeError:
         print('Error occurred when parsing the string: {}'.format(s))
         return '', ''
-
-print(all_matching_regex('23:05:1 aaa'))
