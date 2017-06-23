@@ -151,25 +151,20 @@ if __name__ == "__main__":
 
     print("Parsing " + TRACKS_FILE)
     with open(TRACKS_FILE) as tracksF:
-        if DURATION:
-            time_elapsed = '0:00:00'
-            for i, line in enumerate(tracksF):
-                curr_start, curr_title = all_matching_regex(line)
+        time_elapsed = '0:00:00'
+        for i, line in enumerate(tracksF):
+            curr_start, curr_title = all_matching_regex(line)
+            tTitle = curr_title
 
+            if DURATION:
                 tStart = splitutil.timeToSeconds(time_elapsed)
-
-                tracksStarts.append(tStart*1000)
-                tracksTitles.append(curr_title)
-
                 time_elapsed = splitutil.updateTimeChange(time_elapsed, curr_start)
-        else:
-            for i, line in enumerate(tracksF):
-                curr_start, curr_title = all_matching_regex(line)
+            else:
                 tStart = splitutil.timeToSeconds(curr_start)
-                tTitle = curr_title
 
-                tracksStarts.append(tStart*1000)
-                tracksTitles.append(tTitle)
+            tracksStarts.append(tStart*1000)
+            tracksTitles.append(curr_title)
+
     print("Tracks file parsed")
 
     album = None
