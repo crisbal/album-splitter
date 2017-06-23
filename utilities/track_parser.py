@@ -10,7 +10,7 @@ NOISE = [
 ]
 
 
-def all_matching_regex(s):
+def track_parser(s):
     """
     Matches any combination of the following:
     Beginning of a line:

@@ -15,7 +15,7 @@ import uuid
 
 import splitutil
 
-from utilities.all_matching_regex import all_matching_regex
+from utilities.track_parser import track_parser
 
 
 mdProviders = []
@@ -153,7 +153,7 @@ if __name__ == "__main__":
     with open(TRACKS_FILE) as tracksF:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracksF):
-            curr_start, curr_title = all_matching_regex(line)
+            curr_start, curr_title = track_parser(line)
             tTitle = curr_title
 
             if DURATION:
