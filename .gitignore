@@ -5,3 +5,4 @@ venv/
 splits/
 __pycache__/
 .idea
+tracks.txt

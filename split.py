@@ -15,6 +15,8 @@ import uuid
 
 import splitutil
 
+from utilities.all_matching_regex import all_matching_regex
+
 
 mdProviders = []
 for module in os.listdir("MetaDataProviders"):
@@ -147,29 +149,24 @@ if __name__ == "__main__":
     tracksStarts = []
     tracksTitles = []
 
-    regex = re.compile("(?P<start>.+)\s*\-\s*(?P<title>.+)")
-
     print("Parsing " + TRACKS_FILE)
     with open(TRACKS_FILE) as tracksF:
         if DURATION:
             time_elapsed = '0:00:00'
             for i, line in enumerate(tracksF):
-                m = regex.match(line)
+                curr_start, curr_title = all_matching_regex(line)
 
                 tStart = splitutil.timeToSeconds(time_elapsed)
-                tTitle = m.group('title').strip()
 
                 tracksStarts.append(tStart*1000)
-                tracksTitles.append(tTitle)
+                tracksTitles.append(curr_title)
 
-                curr_track_time = m.group('start').strip()
-                time_elapsed = splitutil.updateTimeChange(time_elapsed, curr_track_time)
+                time_elapsed = splitutil.updateTimeChange(time_elapsed, curr_start)
         else:
             for i, line in enumerate(tracksF):
-                m = regex.match(line)
-
-                tStart = splitutil.timeToSeconds(m.group('start').strip())
-                tTitle = m.group('title').strip()
+                curr_start, curr_title = all_matching_regex(line)
+                tStart = splitutil.timeToSeconds(curr_start)
+                tTitle = curr_title
 
                 tracksStarts.append(tStart*1000)
                 tracksTitles.append(tTitle)
@@ -203,7 +200,7 @@ if __name__ == "__main__":
         queue = Queue()
         for index, track in enumerate(tracksTitles):
             queue.put((index, track))
-        # initailize/start threads
+        # initialize/start threads
         threads = []
         for i in range(NUM_THREADS):
             new_thread = Thread(target=thread_func, args=(album, tracksStarts, queue, FOLDER))

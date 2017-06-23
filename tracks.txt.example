@@ -1,0 +1,22 @@
+# ATTENTION: TO USE, ERASE THE LINES STARTING WITH #
+# This is an example file of how to write the tracks.txt file on your installation:
+#
+# 1) Copy this file and name the copy: tracks.txt
+# 2) Erase any line starting with # from the tracks.txt (not from tracks.txt.example)
+# 3) Write or copy the track list in any of the following formats:
+#    - Dashes (-) can be omitted
+#    - Time can be writen in HH:MM:SS or MM:SS format.
+#    - If the list is numbered, tracks can be from 1 to 99 (at the moment)
+#    - If time is over the logical constrains (00 <= HH <= 23, 00 <= MM, SS <= 59) then the out of
+#      bounds digit(s) will be omitted:
+#      ex1: MM:SS=67:61 will result in 7:6
+#      ex2: HH:MM:SS=24:05:01 will result in 24:05
+00:00:00 - When I Was Young
+03:28 - Dogs Eating Dogs
+06:58 Disaster
+Boxing Day - 10:40
+Pretty Little Girl 14:39
+1. Proton Lander - 00:16:45
+1. 19:20 Parabola
+1 Crooked Teeth - 23:45
+1 00:26:15 Dozer
