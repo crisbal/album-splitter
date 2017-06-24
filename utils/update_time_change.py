@@ -1,4 +1,4 @@
-def updateTimeChange(time_elapsed, track_time):
+def update_time_change(time_elapsed, track_time):
     elapsed = time_elapsed.split(":")
     if len(elapsed) == 2:
         elapsed_h = 0
@@ -8,7 +8,7 @@ def updateTimeChange(time_elapsed, track_time):
         elapsed_h = int(elapsed[0])
         elapsed_m = int(elapsed[1])
         elapsed_s = int(elapsed[2])
-            
+
     track = track_time.split(":")
     # get track length
     if len(track) == 2:
@@ -19,7 +19,7 @@ def updateTimeChange(time_elapsed, track_time):
         track_h = int(track[0])
         track_m = int(track[1])
         track_s = int(track[2])
-    
+
 
     # add track length to elapsed time
     elapsed_h = elapsed_h + track_h
@@ -53,27 +53,3 @@ def updateTimeChange(time_elapsed, track_time):
         str_s = str(elapsed_s)
 
     return '{}:{}:{}'.format(str_h, str_m, str_s)
-
-
-def timeToSeconds(time):
-    parts = time.split(":")
-    seconds = None
-    if len(parts) == 3:  # h:m:s
-        seconds = int(parts[0])*3600 + int(parts[1])*60 + int(parts[2])
-    elif len(parts) == 2:  # m:s
-        seconds = int(parts[0])*60 + int(parts[1])
-    return seconds
-
-
-def writeTracksToFile(track_times, track_titles, track_filename):
-    track_file = open(track_filename, 'w')
-    time_elapsed = "00:00:00"
-    text = ""
-    for title, time in zip(track_titles, track_times):
-        text += '{} - {}\n'.format(time_elapsed, str(title))
-        time_elapsed = updateTimeChange(time_elapsed, time)
-
-    track_file.seek(0)
-    track_file.write(text)
-    track_file.truncate()
-    track_file.close()

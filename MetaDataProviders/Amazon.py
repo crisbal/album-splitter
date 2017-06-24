@@ -4,9 +4,9 @@
 
 from urllib.request import build_opener
 from bs4 import BeautifulSoup
-import splitutil
 import re
 
+import utils
 
 VALID_URL = "https?://(?:\w+\.)?amazon\..*/.*"
 
@@ -27,5 +27,5 @@ def lookup(url, tracks_filename):
     for line in song_lines:
         track_titles.append(line.find(attrs={'class': 'TitleLink'}).text.strip())
         track_times.append(line.find(id=re.compile("dmusic_tracklist_duration.*")).text.strip())
-    splitutil.writeTracksToFile(track_times, track_titles, tracks_filename)
+    utils.write_tracks_to_file(track_times, track_titles, tracks_filename)
     return True

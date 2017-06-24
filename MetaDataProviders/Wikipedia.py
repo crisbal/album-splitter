@@ -4,9 +4,9 @@
 
 from urllib.request import build_opener
 from bs4 import BeautifulSoup
-import splitutil
 import re
 
+import utils
 
 VALID_URL = "https?://(?:\w+\.)?wikipedia\..*/.*"
 
@@ -34,9 +34,8 @@ def lookup(url, tracks_filename):
             except(TypeError):
                 break
             track_times.append(tds[numberOfColumns-1].get_text())
-    splitutil.writeTracksToFile(track_times, track_titles, tracks_filename)
+    utils.write_tracks_to_file(track_times, track_titles, tracks_filename)
     return True
 
 def find_numberOfColumns(table_header):
     return len(table_header.find_all('th'))
-    

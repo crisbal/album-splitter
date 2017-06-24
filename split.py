@@ -13,14 +13,12 @@ import re
 import argparse
 import uuid
 
-import splitutil
-
-from utilities.track_parser import track_parser
+import utils
 
 
 mdProviders = []
 for module in os.listdir("MetaDataProviders"):
-    if module == "__init__.py" or module[-3:] != ".py" or module=="splitutil.py":
+    if module == "__init__.py" or module[-3:] != ".py":
         continue
     mdProviders.append(__import__("MetaDataProviders." + module[:-3], fromlist=[""]))
 
@@ -156,16 +154,16 @@ if __name__ == "__main__":
     with open(TRACKS_FILE) as tracksF:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracksF):
-            curr_start, curr_title = track_parser(line)
+            curr_start, curr_title = utils.track_parser(line)
 
             if DRYRUN:
                 print(curr_title + " *** " + curr_start)
 
             if DURATION:
-                tStart = splitutil.timeToSeconds(time_elapsed)
-                time_elapsed = splitutil.updateTimeChange(time_elapsed, curr_start)
+                tStart = utils.time_to_seconds(time_elapsed)
+                time_elapsed = utils.updateTimeChange(time_elapsed, curr_start)
             else:
-                tStart = splitutil.timeToSeconds(curr_start)
+                tStart = utils.time_to_seconds(curr_start)
 
 
             tracksStarts.append(tStart*1000)
