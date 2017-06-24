@@ -16,11 +16,11 @@ import uuid
 import utils
 
 
-mdProviders = []
+metadata_providers = []
 for module in os.listdir("MetaDataProviders"):
     if module == "__init__.py" or module[-3:] != ".py":
         continue
-    mdProviders.append(__import__("MetaDataProviders." + module[:-3], fromlist=[""]))
+    metadata_providers.append(__import__("MetaDataProviders." + module[:-3], fromlist=[""]))
 
 
 class MyLogger(object):
@@ -32,16 +32,16 @@ class MyLogger(object):
         print(msg)
 
 
-def thread_func(album, tracksStarts, queue, FOLDER):
+def thread_func(album, tracks_start, queue, FOLDER):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracksStarts, song_tuple[0], song_tuple[1], FOLDER)
+        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER)
 
 
-def split_song(album, tracksStarts, index, track, FOLDER):
+def split_song(album, tracks_start, index, track, FOLDER):
     print("\t{}) {}".format(str(index+1), track))
-    start = tracksStarts[index]
-    end = tracksStarts[index+1]
+    start = tracks_start[index]
+    end = tracks_start[index+1]
     duration = end-start
     track_path = '{}/{:02d} - {}.mp3'.format(FOLDER, index+1, track)
     album[start:][:duration].export(track_path, format="mp3")
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     parser.add_argument("--dry-run", dest='dry', action='store_true', help="Don't split the file, just output the tracks, useful for seeing if the tracks.txt format is ok or needs tweaking.", default=False)
 
     args = parser.parse_args()
-    TRACKS_FILE = args.tracks
+    TRACKS_FILE_NAME = args.tracks
     FILENAME = args.mp3
     YT_URL = args.yt
     ALBUM = args.album
@@ -120,8 +120,8 @@ if __name__ == "__main__":
             if YT_URL:
                 url_data = urlparse(YT_URL)
                 query = parse_qs(url_data.query)
-                videoID = query["v"][0]
-                FOLDER = "./splits/{}".format(videoID)
+                video_id = query["v"][0]
+                FOLDER = "./splits/{}".format(video_id)
             else:
                 FOLDER = "./splits/{}".format(str(uuid.uuid4())[:16])
     else:
@@ -133,11 +133,11 @@ if __name__ == "__main__":
 
     if METASRC != "file":
         found_a_source = False
-        for provider in mdProviders:
+        for provider in metadata_providers:
             pattern = re.compile(provider.VALID_URL)
             if pattern.match(METASRC):
                 print("Matched with a metadata provider...")
-                if not provider.lookup(METASRC, TRACKS_FILE):
+                if not provider.lookup(METASRC, TRACKS_FILE_NAME):
                     print("Can't find a track list in the provided source. Shutting Down.")
                     exit()
                 else:
@@ -147,44 +147,43 @@ if __name__ == "__main__":
             print("There was no provider able to get data from your source!")
             exit()
 
-    tracksStarts = []
-    tracksTitles = []
+    tracks_start = []
+    tracks_titles = []
 
-    print("Parsing " + TRACKS_FILE)
-    with open(TRACKS_FILE) as tracksF:
+    print("Parsing " + TRACKS_FILE_NAME)
+    with open(TRACKS_FILE_NAME) as tracks_file:
         time_elapsed = '0:00:00'
-        for i, line in enumerate(tracksF):
+        for i, line in enumerate(tracks_file):
             curr_start, curr_title = utils.track_parser(line)
 
             if DRYRUN:
                 print(curr_title + " *** " + curr_start)
 
             if DURATION:
-                tStart = utils.time_to_seconds(time_elapsed)
-                time_elapsed = utils.updateTimeChange(time_elapsed, curr_start)
+                t_start = utils.time_to_seconds(time_elapsed)
+                time_elapsed = utils.update_time_change(time_elapsed, curr_start)
             else:
-                tStart = utils.time_to_seconds(curr_start)
+                t_start = utils.time_to_seconds(curr_start)
 
 
-            tracksStarts.append(tStart*1000)
-            tracksTitles.append(curr_title)
+            tracks_start.append(t_start*1000)
+            tracks_titles.append(curr_title)
 
     if DRYRUN:
         exit()
 
     print("Tracks file parsed")
 
-
     album = None
     if YT_URL:
         url_data = urlparse(YT_URL)
         query = parse_qs(url_data.query)
-        videoID = query["v"][0]
-        FILENAME = videoID + ".wav"
+        video_id = query["v"][0]
+        FILENAME = video_id + ".wav"
         if not os.path.isfile(FILENAME):
                 print("Downloading video from YouTube")
                 with YoutubeDL(ydl_opts) as ydl:
-                    ydl.download(['http://www.youtube.com/watch?v=' + videoID])
+                    ydl.download(['http://www.youtube.com/watch?v=' + video_id])
                 print("\nConversion complete")
         else:
                 print("Found matching file")
@@ -195,18 +194,18 @@ if __name__ == "__main__":
         album = AudioSegment.from_file(FILENAME, 'mp3')
     print("Audio file loaded")
 
-    tracksStarts.append(len(album))  # we need this for the last track/split
+    tracks_start.append(len(album))  # we need this for the last track/split
 
     print("Starting to split")
     if THREADED and NUM_THREADS > 1:
         # Create our queue of indexes and track titles
         queue = Queue()
-        for index, track in enumerate(tracksTitles):
+        for index, track in enumerate(tracks_titles):
             queue.put((index, track))
         # initialize/start threads
         threads = []
         for i in range(NUM_THREADS):
-            new_thread = Thread(target=thread_func, args=(album, tracksStarts, queue, FOLDER))
+            new_thread = Thread(target=thread_func, args=(album, tracks_start, queue, FOLDER))
             new_thread.start()
             threads.append(new_thread)
         # wait for them to finish
@@ -214,8 +213,8 @@ if __name__ == "__main__":
             thread.join()
     # Non threaded execution
     else:
-        tracksTitles.append("END")
-        for i, track in enumerate(tracksTitles):
-            if i != len(tracksTitles)-1:
-                split_song(album, tracksStarts, i, track, FOLDER)
+        tracks_titles.append("END")
+        for i, track in enumerate(tracks_titles):
+            if i != len(tracks_titles)-1:
+                split_song(album, tracks_start, i, track, FOLDER)
     print("All Done")
