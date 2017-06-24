@@ -16,7 +16,6 @@ This script is for you!
 6. Install the required packages via pip
     * ```pip install -r requirements.txt```
 
-
 ## Quick guide (from a local album)
 
 1. Create a copy of the tracks.txt.example, rename it as tracks.txt and
@@ -25,7 +24,7 @@ This script is for you!
 3. Add tracks info in this format:
     * ```<start-time> - <title>```
     * A track on each line
-    * See *Examples* section
+    * See *Examples* section, many other formats supported
 4. Run the script
     * Basic usage: ```python split.py -mp3 <path/to/your/album.mp3>```
     * More in the *Examples* section
@@ -39,7 +38,7 @@ This script is for you!
 3. Create a copy of the tracks.txt.example, rename it as tracks.txt and
    delete the lines starting with #.
 4. Open tracks.txt
-5. Copy the tracklist in the file, adjusting for the supported format
+5. Copy the tracklist in the file, adjusting for the supported formats
     * ```<start-time> - <title>```
     * A track on each line
 6. Run the script
@@ -53,8 +52,8 @@ This script is for you!
 
 ### Downloading and splitting an album from YouTube
 
-1. This is the album I want to download and split: https://www.youtube.com/watch?v=p_uqD4ng9hw
-2. I find the tracklist in the comments and I copy that in tracks.txt, adjust it to my format
+1. This is the album I want to download and split: `https://www.youtube.com/watch?v=p_uqD4ng9hw`
+2. I find the tracklist in the comments and I copy that in `tracks.txt`, eventually adjusting it to a supported format for the tracklist
 ```
 00:06 - When I Was Young
 ...
@@ -79,6 +78,7 @@ These songs are already mp3-tagged with their track name and track number, but n
 4. The program will execute, it will split the album, and mp3-tag each track with the author and  the album name I passed as a parameter (as well as track number and name). It will also put the files in the folder passed as an argument (instead of putting them in the default ```splits``` folder)
 
 ### Downloading and splitting an album from YouTube using a tracklist pulled from Wikipedia or Amazon
+
 1. This is the album I want to download and split: https://www.youtube.com/watch?v=p_uqD4ng9hw
 2. This is the Wikipedia page that has the album tracklist: https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs
 3. I execute ```python split.py -yt https://www.youtube.com/watch?v=p_uqD4ng9hw --metadata https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs``` and wait
@@ -93,16 +93,44 @@ These songs are already mp3-tagged with their track name and track number, but n
 The same thing works if you provide a link to the Amazon page for that album.
 
 ### Show an help page for the script
+
 ``` python split.py -h ```
 
-### Change the format for the tracks.txt file
-1. Open split.py
-2. Find this line ```regex = re.compile("(?P<start>.+)\s*\-\s*(?P<title>.+)")```
-3. Change this line to whatever Regex you want but be sure to match at least ```(?P<start>.+)``` and ```(?P<title>.+)```
-4. Test your changes
-5. Have fun!
+## Supported formats for the track list (`tracks.txt`)
+
+These are just some examples.
+
+* [hh:]mm:ss - Title
+* Title - [hh:]mm:ss
+* Title [hh:]mm:ss
+* TrackNumber. Title [hh:]mm:ss
+* TrackNumber - Title [hh:]mm:ss
+
+To see which data would be extracted from the tracklist use the option `--dry-run`. It also works if you pass any external `--metadata` url.
+
+Example:
+
+```python
+python split.py
+    --dry-run
+    -yt https://www.youtube.com/watch?v=T44T8JdMOak
+    --metadata https://www.amazon.com/Enema-State-Blink-182/dp/B00000IPAX
+```
+
+will output
+
+```
+**** DRY RUN ****
+Matched with a metadata provider...
+Parsing tracks.txt
+Dumpweed [Explicit] *** 00:00:00
+...
+Anthem *** 00:31:40
+```
+
 
 ## TODO
+
 Check the ```Issues``` page
 
 ## Need help?
@@ -112,7 +140,6 @@ If you need any help just create an Issue or send me an email at the address you
 ## Want to help?
 
 If you want to improve the code and submit a pull request feel free to do so.
-
 
 ## Licence
 
