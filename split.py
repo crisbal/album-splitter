@@ -85,8 +85,6 @@ ydl_opts = {
 
 
 if __name__ == "__main__":
-    print("Starting")
-
     # arg parsing
     parser = argparse.ArgumentParser(description='Split a single-file mp3 Album into its tracks.')
     group = parser.add_mutually_exclusive_group(required=True)
@@ -100,7 +98,8 @@ if __name__ == "__main__":
     parser.add_argument("-th", "--threaded", dest='threaded', action='store_true', help="Specify the script should use threads. Default: False", default=False)
     parser.add_argument("--num-threads", dest='num_threads', help="Specify the (whole/non-negative) number of threads the script should spawn when using threads. Default: 3", default='3')
     parser.add_argument("--metadata", dest='metadata', help="Specify the source for the Album Metadata.", default="file")
-    
+    parser.add_argument("--dry-run", dest='dry', action='store_true', help="Don't split the file, just output the tracks, useful for seeing if the tracks.txt format is ok or needs tweaking.", default=False)
+
     args = parser.parse_args()
     TRACKS_FILE = args.tracks
     FILENAME = args.mp3
@@ -111,6 +110,10 @@ if __name__ == "__main__":
     THREADED = args.threaded
     NUM_THREADS = int(args.num_threads)
     METASRC = args.metadata
+    DRYRUN = args.dry
+
+    if DRYRUN:
+        print("**** DRY RUN ****")
 
     if args.folder is None:
         if ALBUM and ARTIST:
@@ -127,7 +130,7 @@ if __name__ == "__main__":
         FOLDER = args.folder
 
     # create destination folder
-    if not os.path.exists(FOLDER):
+    if not os.path.exists(FOLDER) and not DRYRUN:
         os.makedirs(FOLDER)
 
     if METASRC != "file":
@@ -154,7 +157,9 @@ if __name__ == "__main__":
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracksF):
             curr_start, curr_title = track_parser(line)
-            tTitle = curr_title
+
+            if DRYRUN:
+                print(curr_title + " *** " + curr_start)
 
             if DURATION:
                 tStart = splitutil.timeToSeconds(time_elapsed)
@@ -162,10 +167,15 @@ if __name__ == "__main__":
             else:
                 tStart = splitutil.timeToSeconds(curr_start)
 
+
             tracksStarts.append(tStart*1000)
             tracksTitles.append(curr_title)
 
+    if DRYRUN:
+        exit()
+
     print("Tracks file parsed")
+
 
     album = None
     if YT_URL:
