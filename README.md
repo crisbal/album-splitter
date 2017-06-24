@@ -110,7 +110,7 @@ To see which data would be extracted from the tracklist use the option `--dry-ru
 
 Example:
 
-```python
+```
 python split.py
     --dry-run
     -yt https://www.youtube.com/watch?v=T44T8JdMOak
