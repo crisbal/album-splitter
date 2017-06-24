@@ -4,3 +4,5 @@ venv/
 *.wav
 splits/
 __pycache__/
+.idea
+tracks.txt

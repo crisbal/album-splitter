@@ -15,6 +15,8 @@ import uuid
 
 import splitutil
 
+from utilities.track_parser import track_parser
+
 
 mdProviders = []
 for module in os.listdir("MetaDataProviders"):
@@ -147,32 +149,22 @@ if __name__ == "__main__":
     tracksStarts = []
     tracksTitles = []
 
-    regex = re.compile("(?P<start>.+)\s*\-\s*(?P<title>.+)")
-
     print("Parsing " + TRACKS_FILE)
     with open(TRACKS_FILE) as tracksF:
-        if DURATION:
-            time_elapsed = '0:00:00'
-            for i, line in enumerate(tracksF):
-                m = regex.match(line)
+        time_elapsed = '0:00:00'
+        for i, line in enumerate(tracksF):
+            curr_start, curr_title = track_parser(line)
+            tTitle = curr_title
 
+            if DURATION:
                 tStart = splitutil.timeToSeconds(time_elapsed)
-                tTitle = m.group('title').strip()
+                time_elapsed = splitutil.updateTimeChange(time_elapsed, curr_start)
+            else:
+                tStart = splitutil.timeToSeconds(curr_start)
 
-                tracksStarts.append(tStart*1000)
-                tracksTitles.append(tTitle)
+            tracksStarts.append(tStart*1000)
+            tracksTitles.append(curr_title)
 
-                curr_track_time = m.group('start').strip()
-                time_elapsed = splitutil.updateTimeChange(time_elapsed, curr_track_time)
-        else:
-            for i, line in enumerate(tracksF):
-                m = regex.match(line)
-
-                tStart = splitutil.timeToSeconds(m.group('start').strip())
-                tTitle = m.group('title').strip()
-
-                tracksStarts.append(tStart*1000)
-                tracksTitles.append(tTitle)
     print("Tracks file parsed")
 
     album = None
@@ -203,7 +195,7 @@ if __name__ == "__main__":
         queue = Queue()
         for index, track in enumerate(tracksTitles):
             queue.put((index, track))
-        # initailize/start threads
+        # initialize/start threads
         threads = []
         for i in range(NUM_THREADS):
             new_thread = Thread(target=thread_func, args=(album, tracksStarts, queue, FOLDER))
