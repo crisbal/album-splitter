@@ -126,8 +126,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--num-threads",
         dest='num_threads',
-        help="Specify the (whole/non-negative) number of threads the script should spawn when using"
-             " threads. Default: 3",
+        help="Specify the (whole/non-negative) number of threads the script should spawn when "
+             "using threads. Default: 3",
         default='3'
     )
     parser.add_argument(
