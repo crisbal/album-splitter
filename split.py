@@ -24,8 +24,10 @@ for module in os.listdir("MetaDataProviders"):
 class MyLogger(object):
     def debug(self, msg):
         pass
+
     def warning(self, msg):
         pass
+
     def error(self, msg):
         print(msg)
 
@@ -85,16 +87,63 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Split a single-file mp3 Album into its tracks.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-mp3", help="The .mp3 file you want to split.", metavar="mp3_file")
-    group.add_argument("-yt", help="The YouTube video url you want to download and split.", metavar="youtube_url")
-    parser.add_argument("-a", "--artist", help="Specify the artist that the mp3s will be ID3-tagged with. Default: no tag", default=None)
-    parser.add_argument("-A",  "--album", help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag", default=None)
-    parser.add_argument("-t", "--tracks", help="Specify the tracks file. Default: tracks.txt", default="tracks.txt")
-    parser.add_argument("-f", "--folder", help="Specify the folder the mp3s will be put in. Default: splits/", default=None)
-    parser.add_argument("-d", "--duration", dest='duration', action='store_true', help="Specify track time format will use the duration of each individual song. Default: False", default=False)
-    parser.add_argument("-th", "--threaded", dest='threaded', action='store_true', help="Specify the script should use threads. Default: False", default=False)
-    parser.add_argument("--num-threads", dest='num_threads', help="Specify the (whole/non-negative) number of threads the script should spawn when using threads. Default: 3", default='3')
-    parser.add_argument("--metadata", dest='metadata', help="Specify the source for the Album Metadata.", default="file")
-    parser.add_argument("--dry-run", dest='dry', action='store_true', help="Don't split the file, just output the tracks, useful for seeing if the tracks.txt format is ok or needs tweaking.", default=False)
+    group.add_argument(
+        "-yt", help="The YouTube video url you want to download and split.", metavar="youtube_url"
+    )
+    parser.add_argument(
+        "-a", "--artist",
+        help="Specify the artist that the mp3s will be ID3-tagged with. Default: no tag",
+        default=None
+    )
+    parser.add_argument(
+        "-A",  "--album",
+        help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag",
+        default=None
+    )
+    parser.add_argument(
+        "-t", "--tracks", help="Specify the tracks file. Default: tracks.txt", default="tracks.txt"
+    )
+    parser.add_argument(
+        "-f", "--folder",
+        help="Specify the folder the mp3s will be put in. Default: splits/",
+        default=None
+    )
+    parser.add_argument(
+        "-d", "--duration",
+        dest='duration',
+        action='store_true',
+        help="Specify track time format will use the duration of each individual song. "
+             "Default: False",
+        default=False
+    )
+    parser.add_argument(
+        "-th", "--threaded",
+        dest='threaded',
+        action='store_true',
+        help="Specify the script should use threads. Default: False",
+        default=False
+    )
+    parser.add_argument(
+        "--num-threads",
+        dest='num_threads',
+        help="Specify the (whole/non-negative) number of threads the script should spawn when using"
+             " threads. Default: 3",
+        default='3'
+    )
+    parser.add_argument(
+        "--metadata",
+        dest='metadata',
+        help="Specify the source for the Album Metadata.",
+        default="file"
+    )
+    parser.add_argument(
+        "--dry-run",
+        dest='dry',
+        action='store_true',
+        help="Don't split the file, just output the tracks, useful for seeing if the tracks.txt "
+             "format is ok or needs tweaking.",
+        default=False
+    )
 
     args = parser.parse_args()
     TRACKS_FILE_NAME = args.tracks
@@ -162,7 +211,6 @@ if __name__ == "__main__":
                 time_elapsed = update_time_change(time_elapsed, curr_start)
             else:
                 t_start = time_to_seconds(curr_start)
-
 
             tracks_start.append(t_start*1000)
             tracks_titles.append(curr_title)
