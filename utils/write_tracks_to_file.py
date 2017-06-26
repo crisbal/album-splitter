@@ -1,5 +1,6 @@
 from .update_time_change import update_time_change
 
+
 def write_tracks_to_file(track_times, track_titles, track_filename):
     time_elapsed = "00:00:00"
     text = ""

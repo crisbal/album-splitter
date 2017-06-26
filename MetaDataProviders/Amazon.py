@@ -10,6 +10,7 @@ import utils
 
 VALID_URL = "https?://(?:\w+\.)?amazon\..*/.*"
 
+
 def lookup(url, tracks_filename):
     opener = build_opener()
     opener.addheaders = [('User-agent', 'Album-Splitter')]

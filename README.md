@@ -14,7 +14,7 @@ This script is for you!
 5. ```virtualenv -p /usr/bin/python3 venv``` (optional)
     * ```source venv/bin/activate```
 6. Install the required packages via pip
-    * ```pip install -r requirements.txt```
+    * ```pip install -r requirements/prod.txt```
 
 ## Quick guide (from a local album)
 

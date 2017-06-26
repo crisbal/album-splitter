@@ -20,7 +20,6 @@ def update_time_change(time_elapsed, track_time):
         track_m = int(track[1])
         track_s = int(track[2])
 
-
     # add track length to elapsed time
     elapsed_h = elapsed_h + track_h
     elapsed_m = elapsed_m + track_m
