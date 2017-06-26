@@ -1,19 +1,17 @@
-from pydub import AudioSegment
-from mutagen.easyid3 import EasyID3
-
-from urllib.parse import urlparse, parse_qs
-from youtube_dl import YoutubeDL
-
+import argparse
+import os
+import re
+import sys
 from queue import Queue
 from threading import Thread
+from uuid import uuid4
 
-import os
-import sys
-import re
-import argparse
-import uuid
+from urllib.parse import urlparse, parse_qs
+from mutagen.easyid3 import EasyID3
+from pydub import AudioSegment
+from youtube_dl import YoutubeDL
 
-import utils
+from utils import (time_to_seconds, track_parser, update_time_change)
 
 
 metadata_providers = []
@@ -123,7 +121,7 @@ if __name__ == "__main__":
                 video_id = query["v"][0]
                 FOLDER = "./splits/{}".format(video_id)
             else:
-                FOLDER = "./splits/{}".format(str(uuid.uuid4())[:16])
+                FOLDER = "./splits/{}".format(str(uuid4())[:16])
     else:
         FOLDER = args.folder
 
@@ -154,16 +152,16 @@ if __name__ == "__main__":
     with open(TRACKS_FILE_NAME) as tracks_file:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracks_file):
-            curr_start, curr_title = utils.track_parser(line)
+            curr_start, curr_title = track_parser(line)
 
             if DRYRUN:
                 print(curr_title + " *** " + curr_start)
 
             if DURATION:
-                t_start = utils.time_to_seconds(time_elapsed)
-                time_elapsed = utils.update_time_change(time_elapsed, curr_start)
+                t_start = time_to_seconds(time_elapsed)
+                time_elapsed = update_time_change(time_elapsed, curr_start)
             else:
-                t_start = utils.time_to_seconds(curr_start)
+                t_start = time_to_seconds(curr_start)
 
 
             tracks_start.append(t_start*1000)
