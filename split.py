@@ -9,7 +9,7 @@ from uuid import uuid4
 from pydub import AudioSegment
 from youtube_dl import YoutubeDL
 
-from setup import METADATA_PROVIDERS, ydl_opts
+from split_init import METADATA_PROVIDERS, ydl_opts
 from utils import (split_song, time_to_seconds, track_parser, update_time_change)
 
 
