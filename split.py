@@ -7,11 +7,10 @@ from threading import Thread
 from uuid import uuid4
 
 from urllib.parse import urlparse, parse_qs
-from mutagen.easyid3 import EasyID3
 from pydub import AudioSegment
 from youtube_dl import YoutubeDL
 
-from utils import (time_to_seconds, track_parser, update_time_change)
+from utils import (split_song, time_to_seconds, track_parser, update_time_change)
 
 
 metadata_providers = []
@@ -32,29 +31,10 @@ class MyLogger(object):
         print(msg)
 
 
-def thread_func(album, tracks_start, queue, FOLDER):
+def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER)
-
-
-def split_song(album, tracks_start, index, track, FOLDER):
-    print("\t{}) {}".format(str(index+1), track))
-    start = tracks_start[index]
-    end = tracks_start[index+1]
-    duration = end-start
-    track_path = '{}/{:02d} - {}.mp3'.format(FOLDER, index+1, track)
-    album[start:][:duration].export(track_path, format="mp3")
-
-    print("\t\tTagging")
-    song = EasyID3(track_path)
-    if ARTIST:
-            song['artist'] = ARTIST
-    if ALBUM:
-            song['album'] = ALBUM
-    song['title'] = track
-    song['tracknumber'] = str(index+1)
-    song.save()
+        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM)
 
 
 def my_hook(d):
