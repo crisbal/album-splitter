@@ -1,4 +1,4 @@
-# Album-Splitter
+# album-splitter
 
 Do you have a music album as a single file (locally or on YouTube), with all its tracks joined together? Do you want to split that album in its single tracks? Do you want to tag these tracks so your music player can get all the required info from them?
 
