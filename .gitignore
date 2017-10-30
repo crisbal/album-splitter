@@ -6,3 +6,4 @@ splits/
 __pycache__/
 .idea
 tracks.txt
+tests/resources/html_files_captured/
