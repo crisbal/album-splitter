@@ -8,18 +8,17 @@ from threading import Thread
 from urllib.parse import urlparse, parse_qs
 from uuid import uuid4
 
-from pydub import AudioSegment
+import subprocess
+from ffmpy import FFprobe, FFmpeg
 from youtube_dl import YoutubeDL
 
 from split_init import METADATA_PROVIDERS, ydl_opts
 from utils import (split_song, time_to_seconds, track_parser, update_time_change)
 
-
-def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
+def thread_func(album_filename, tracks_start, queue, FOLDER, ARTIST, ALBUM):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM)
-
+        split_song(album_filename, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM)
 
 if __name__ == "__main__":
     # arg parsing
@@ -145,13 +144,13 @@ if __name__ == "__main__":
             if DRYRUN:
                 print(curr_title + " *** " + curr_start)
 
-            if DURATION:
-                t_start = time_to_seconds(time_elapsed)
-                time_elapsed = update_time_change(time_elapsed, curr_start)
-            else:
-                t_start = time_to_seconds(curr_start)
+            #if DURATION:
+            #    t_start = time_to_seconds(time_elapsed)
+            #    time_elapsed = update_time_change(time_elapsed, curr_start)
+            #else:
+            #    t_start = time_to_seconds(curr_start)
 
-            tracks_start.append(t_start*1000)
+            tracks_start.append(curr_start)
             tracks_titles.append(curr_title)
 
     if DRYRUN:
@@ -159,7 +158,7 @@ if __name__ == "__main__":
 
     print("Tracks file parsed")
 
-    album = None
+    album_filename = None
     if YT_URL:
         url_data = urlparse(YT_URL)
         query = parse_qs(url_data.query)
@@ -172,14 +171,16 @@ if __name__ == "__main__":
                 print("\nConversion complete")
         else:
                 print("Found matching file")
-        print("Loading audio file")
-        album = AudioSegment.from_file(FILENAME, 'wav')
+        album_filename = FILENAME
     else:
-        print("Loading audio file")
-        album = AudioSegment.from_file(FILENAME, 'mp3')
-    print("Audio file loaded")
+        album_filename = FILENAME
 
-    tracks_start.append(len(album))  # we need this for the last track/split
+    ffprobe_command = FFprobe(
+        inputs={FILENAME: '-show_entries format=duration -v quiet -of csv="p=0" -sexagesimal'}
+    )
+    stdout, _ = ffprobe_command.run(stdout=subprocess.PIPE)
+    file_duration = stdout.decode("utf-8").rstrip()
+    tracks_start.append(file_duration)  # we need this for the last track/split
 
     print("Starting to split")
     if THREADED and NUM_THREADS > 1:
@@ -190,8 +191,8 @@ if __name__ == "__main__":
         # initialize/start threads
         threads = []
         for i in range(NUM_THREADS):
-            new_thread = Thread(target=thread_func, args=(album, tracks_start, queue, FOLDER))
-            new_thread.start()
+            new_thread = Thread(target=thread_func, args=(album_filename, tracks_start, queue, FOLDER, ARTIST, ALBUM))
+            subprocenew_thread.start()
             threads.append(new_thread)
         # wait for them to finish
         for thread in threads:
@@ -199,7 +200,16 @@ if __name__ == "__main__":
     # Non threaded execution
     else:
         tracks_titles.append("END")
+        outputs={}
         for i, track in enumerate(tracks_titles):
             if i != len(tracks_titles)-1:
-                split_song(album, tracks_start, i, track, FOLDER)
+                track_path = '{}/{:02d} - {}.mp3'.format(FOLDER, i+1, track)
+                outputs[track_path] = '-ss {} -to {} '.format(tracks_start[i], tracks_start[i+1])
+                #split_song(album_filename, tracks_start, i, track, FOLDER, ARTIST, ALBUM)
+        ffmpeg_cmd = FFmpeg(
+            inputs={album_filename: '-y '},
+            outputs=outputs
+        )
+        print(ffmpeg_cmd.cmd)
+        ffmpeg_cmd.run()
     print("All Done")

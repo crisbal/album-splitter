@@ -1,5 +1,10 @@
 beautifulsoup4==4.4.0
+ffmpy==0.2.2
+future==0.16.0
+mccabe==0.6.1
 mutagen==1.31
+pycodestyle==2.3.1
 pydub==0.14.2
+pyflakes==1.5.0
 urlparse3==1.0.3
 youtube-dl==2017.6.18
