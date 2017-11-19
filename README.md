@@ -61,7 +61,7 @@ This script is for you!
 <start-time> - <title> <--- remove this, just as a reminder of the format
 ```
 
-3. I execute ```python split.py -yt https://www.youtube.com/watch?v=p_uqD4ng9hw``` and wait
+3. I execute ```python split.py -yt "https://www.youtube.com/watch?v=p_uqD4ng9hw"``` and wait
 4. Once the process is complete I open ```splits``` and I find all my songs:
 ```
     When I Was Young.mp3
@@ -81,7 +81,7 @@ These songs are already mp3-tagged with their track name and track number, but n
 
 1. This is the album I want to download and split: https://www.youtube.com/watch?v=p_uqD4ng9hw
 2. This is the Wikipedia page that has the album tracklist: https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs
-3. I execute ```python split.py -yt https://www.youtube.com/watch?v=p_uqD4ng9hw --metadata https://en.wikipedia.org/wiki/Dogs\_Eating\_Dogs``` and wait
+3. I execute ```python split.py -yt "https://www.youtube.com/watch?v=p_uqD4ng9hw" --metadata "https://en.wikipedia.org/wiki/Dogs_Eating_Dogs"``` and wait
 4. Once the process is complete I open ```splits``` and I find all my songs:
 ```
     When I Was Young.mp3
@@ -94,7 +94,7 @@ The same thing works if you provide a link to the Amazon page for that album.
 
 ### Show an help page for the script
 
-``` python split.py -h ```
+```python split.py -h```
 
 ## Supported formats for the track list (`tracks.txt`)
 
