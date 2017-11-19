@@ -1,85 +1,22 @@
 import argparse
 import os
 import re
-import sys
 from queue import Queue
 from threading import Thread
+from urllib.parse import urlparse, parse_qs
 from uuid import uuid4
 
-from urllib.parse import urlparse, parse_qs
-from mutagen.easyid3 import EasyID3
 from pydub import AudioSegment
 from youtube_dl import YoutubeDL
 
-from utils import (time_to_seconds, track_parser, update_time_change)
+from split_init import METADATA_PROVIDERS, ydl_opts
+from utils import (split_song, time_to_seconds, track_parser, update_time_change)
 
 
-metadata_providers = []
-for module in os.listdir("MetaDataProviders"):
-    if module == "__init__.py" or module[-3:] != ".py":
-        continue
-    metadata_providers.append(__import__("MetaDataProviders." + module[:-3], fromlist=[""]))
-
-
-class MyLogger(object):
-    def debug(self, msg):
-        pass
-
-    def warning(self, msg):
-        pass
-
-    def error(self, msg):
-        print(msg)
-
-
-def thread_func(album, tracks_start, queue, FOLDER):
+def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER)
-
-
-def split_song(album, tracks_start, index, track, FOLDER):
-    print("\t{}) {}".format(str(index+1), track))
-    start = tracks_start[index]
-    end = tracks_start[index+1]
-    duration = end-start
-    track_path = '{}/{:02d} - {}.mp3'.format(FOLDER, index+1, track)
-    album[start:][:duration].export(track_path, format="mp3")
-
-    print("\t\tTagging")
-    song = EasyID3(track_path)
-    if ARTIST:
-            song['artist'] = ARTIST
-    if ALBUM:
-            song['album'] = ALBUM
-    song['title'] = track
-    song['tracknumber'] = str(index+1)
-    song.save()
-
-
-def my_hook(d):
-    if d['status'] == 'downloading':
-        sys.stdout.write('\r\033[K')
-        sys.stdout.write('\tDownloading video | ETA: {} seconds'.format(str(d["eta"])))
-        sys.stdout.flush()
-    elif d['status'] == 'finished':
-        sys.stdout.write('\r\033[K')
-        sys.stdout.write('\tDownload complete\n\tConverting video to mp3')
-        sys.stdout.flush()
-
-
-# youtube_dl configuration
-ydl_opts = {
-    'format': 'bestaudio/best',
-    'outtmpl': '%(id)s.%(ext)s',
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'wav',
-        'preferredquality': '0',
-    }],
-    'logger': MyLogger(),
-    'progress_hooks': [my_hook],
-}
+        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM)
 
 
 if __name__ == "__main__":
@@ -180,7 +117,7 @@ if __name__ == "__main__":
 
     if METASRC != "file":
         found_a_source = False
-        for provider in metadata_providers:
+        for provider in METADATA_PROVIDERS:
             pattern = re.compile(provider.VALID_URL)
             if pattern.match(METASRC):
                 print("Matched with a metadata provider...")
