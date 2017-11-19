@@ -190,7 +190,7 @@ if __name__ == "__main__":
         # initialize/start threads
         threads = []
         for i in range(NUM_THREADS):
-            new_thread = Thread(target=thread_func, args=(album, tracks_start, queue, FOLDER))
+            new_thread = Thread(target=thread_func, args=(album, tracks_start, queue, FOLDER, ARTIST, ALBUM))
             new_thread.start()
             threads.append(new_thread)
         # wait for them to finish
@@ -201,5 +201,5 @@ if __name__ == "__main__":
         tracks_titles.append("END")
         for i, track in enumerate(tracks_titles):
             if i != len(tracks_titles)-1:
-                split_song(album, tracks_start, i, track, FOLDER)
+                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM)
     print("All Done")

@@ -1,7 +1,7 @@
 from mutagen.easyid3 import EasyID3
 
 
-def split_song(album, tracks_start, index, track, folder='.', artist='', album_title=''):
+def split_song(album, tracks_start, index, track, folder='.', artist=None, album_title=None):
     print("\t{}) {}".format(str(index+1), track))
     start = tracks_start[index]
     end = tracks_start[index+1]
