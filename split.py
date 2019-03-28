@@ -18,7 +18,7 @@ from utils import (split_song, time_to_seconds, track_parser, update_time_change
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM)
+        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM, BITRATE)
 
 
 if __name__ == "__main__":
@@ -83,7 +83,11 @@ if __name__ == "__main__":
              "format is ok or needs tweaking.",
         default=False
     )
-
+    parser.add_argument(
+        "-bitrate",
+        help="Specify the bitrate of the export. Default: '320k'",
+        default="320k"
+    )
     args = parser.parse_args()
     TRACKS_FILE_NAME = args.tracks
     FILENAME = args.mp3
@@ -95,6 +99,7 @@ if __name__ == "__main__":
     NUM_THREADS = int(args.num_threads)
     METASRC = args.metadata
     DRYRUN = args.dry
+    BITRATE = args.bitrate
 
     if DRYRUN:
         print("**** DRY RUN ****")
@@ -202,5 +207,5 @@ if __name__ == "__main__":
         tracks_titles.append("END")
         for i, track in enumerate(tracks_titles):
             if i != len(tracks_titles)-1:
-                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM)
+                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM, BITRATE)
     print("All Done")

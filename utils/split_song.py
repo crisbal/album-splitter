@@ -1,13 +1,13 @@
 from mutagen.easyid3 import EasyID3
 
 
-def split_song(album, tracks_start, index, track, folder='.', artist=None, album_title=None):
+def split_song(album, tracks_start, index, track, folder='.', artist=None, album_title=None, bitrate=None):
     print("\t{}) {}".format(str(index+1), track))
     start = tracks_start[index]
     end = tracks_start[index+1]
-    duration = end-start
+    duration = end - start
     track_path = '{}/{:02d} - {}.mp3'.format(folder, index+1, track)
-    album[start:][:duration].export(track_path, format="mp3")
+    album[start:][:duration].export(track_path, format="mp3", bitrate=bitrate)
 
     print("\t\tTagging")
     song = EasyID3(track_path)
