@@ -140,19 +140,20 @@ if __name__ == "__main__":
     with open(TRACKS_FILE_NAME) as tracks_file:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracks_file):
-            curr_start, curr_title = track_parser(line)
+            if len(line.strip()) > 0:
+                curr_start, curr_title = track_parser(line)
+                
+                if DRYRUN:
+                    print(curr_title + " *** " + curr_start)
 
-            if DRYRUN:
-                print(curr_title + " *** " + curr_start)
+                if DURATION:
+                    t_start = time_to_seconds(time_elapsed)
+                    time_elapsed = update_time_change(time_elapsed, curr_start)
+                else:
+                    t_start = time_to_seconds(curr_start)
 
-            if DURATION:
-                t_start = time_to_seconds(time_elapsed)
-                time_elapsed = update_time_change(time_elapsed, curr_start)
-            else:
-                t_start = time_to_seconds(curr_start)
-
-            tracks_start.append(t_start*1000)
-            tracks_titles.append(curr_title)
+                tracks_start.append(t_start*1000)
+                tracks_titles.append(curr_title)
 
     if DRYRUN:
         exit()
