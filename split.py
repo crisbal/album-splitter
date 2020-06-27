@@ -18,7 +18,7 @@ from utils import (split_song, time_to_seconds, track_parser, update_time_change
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM, BITRATE)
+        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
 
 
 if __name__ == "__main__":
@@ -26,6 +26,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Split a single-file mp3 Album into its tracks.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-mp3", help="The .mp3 file you want to split.", metavar="mp3_file")
+    group.add_argument("-m4a", help="The .m4a file you want to split.", metavar="m4a_file")
     group.add_argument(
         "-yt", help="The YouTube video url you want to download and split.", metavar="youtube_url"
     )
@@ -88,9 +89,27 @@ if __name__ == "__main__":
         help="Specify the bitrate of the export. Default: '320k'",
         default="320k"
     )
+    parser.add_argument(
+        "-of", "--output-format",
+        help="Specify the output file format. Dependent on FFMpeg. Default: mp3",
+        dest="output_format",
+        default="mp3"
+    )
+    parser.add_argument(
+        "-tts", "--track-timeskip",
+        help="Specify timeskip from start in each track in ms. Default: 0 ms",
+        dest="trk_timeskip",
+        default=0
+    )
     args = parser.parse_args()
     TRACKS_FILE_NAME = args.tracks
-    FILENAME = args.mp3
+    FILE_TYPE = args.output_format
+    if args.mp3:
+        FILENAME = args.mp3
+        FILE_TYPE = "mp3"
+    elif args.m4a:
+        FILENAME = args.m4a
+        FILE_TYPE = "m4a"
     YT_URL = args.yt
     ALBUM = args.album
     ARTIST = args.artist
@@ -100,6 +119,7 @@ if __name__ == "__main__":
     METASRC = args.metadata
     DRYRUN = args.dry
     BITRATE = args.bitrate
+    TRK_TIMESKIP = int(args.trk_timeskip)
 
     if DRYRUN:
         print("**** DRY RUN ****")
@@ -182,7 +202,10 @@ if __name__ == "__main__":
         album = AudioSegment.from_file(FILENAME, 'wav')
     else:
         print("Loading audio file")
-        album = AudioSegment.from_file(FILENAME, 'mp3')
+        if 'mp3' in FILENAME:
+            album = AudioSegment.from_file(FILENAME, 'mp3')
+        elif 'm4a' in FILENAME:
+            album = AudioSegment.from_file(FILENAME, 'm4a')
     print("Audio file loaded")
 
     tracks_start.append(len(album))  # we need this for the last track/split
@@ -207,5 +230,5 @@ if __name__ == "__main__":
         tracks_titles.append("END")
         for i, track in enumerate(tracks_titles):
             if i != len(tracks_titles)-1:
-                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM, BITRATE)
+                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
     print("All Done")
