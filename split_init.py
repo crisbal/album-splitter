@@ -1,15 +1,13 @@
 import os
 import sys
+import pkgutil
 
 # ============================
 #       General setup
 # ============================
-METADATA_PROVIDERS = []
-for provider in os.listdir("MetaDataProviders"):
-    if provider == "__init__.py" or provider[-3:] != ".py":
-        continue
-    METADATA_PROVIDERS.append(__import__("MetaDataProviders." + provider[:-3], fromlist=[""]))
+import MetaDataProviders
 
+METADATA_PROVIDERS = [n for _, n, _ in pkgutil.iter_modules(['MetaDataProviders'])]
 
 # =============================
 #   Youtube_dl configuration

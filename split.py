@@ -2,6 +2,7 @@
 
 import argparse
 import os
+import sys
 import re
 from queue import Queue
 from threading import Thread
@@ -12,21 +13,26 @@ from pydub import AudioSegment
 from youtube_dl import YoutubeDL
 
 from split_init import METADATA_PROVIDERS, ydl_opts
-from utils import (split_song, time_to_seconds, track_parser, update_time_change)
+from utils import (split_song, time_to_seconds,
+                   track_parser, update_time_change)
 
 
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
+        split_song(album, tracks_start, song_tuple[0], song_tuple[1],
+                   FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
 
 
 if __name__ == "__main__":
     # arg parsing
-    parser = argparse.ArgumentParser(description='Split a single-file mp3 Album into its tracks.')
+    parser = argparse.ArgumentParser(
+        description='Split a single-file mp3 Album into its tracks.')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("-mp3", help="The .mp3 file you want to split.", metavar="mp3_file")
-    group.add_argument("-m4a", help="The .m4a file you want to split.", metavar="m4a_file")
+    group.add_argument(
+        "-mp3", help="The .mp3 file you want to split.", metavar="mp3_file")
+    group.add_argument(
+        "-m4a", help="The .m4a file you want to split.", metavar="m4a_file")
     group.add_argument(
         "-yt", help="The YouTube video url you want to download and split.", metavar="youtube_url"
     )
@@ -149,7 +155,8 @@ if __name__ == "__main__":
             if pattern.match(METASRC):
                 print("Matched with a metadata provider...")
                 if not provider.lookup(METASRC, TRACKS_FILE_NAME):
-                    print("Can't find a track list in the provided source. Shutting Down.")
+                    print(
+                        "Can't find a track list in the provided source. Shutting Down.")
                     exit()
                 else:
                     found_a_source = True
@@ -161,13 +168,18 @@ if __name__ == "__main__":
     tracks_start = []
     tracks_titles = []
 
+    # Let's check up if tracks file exists!! if not.. quit it!
+    if not os.path.isfile(TRACKS_FILE_NAME):
+        print("I can't find "+str(TRACKS_FILE_NAME))
+        sys.exit(-1)
+
     print("Parsing " + TRACKS_FILE_NAME)
     with open(TRACKS_FILE_NAME) as tracks_file:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracks_file):
             if len(line.strip()) > 0:
                 curr_start, curr_title = track_parser(line)
-                
+
                 if DRYRUN:
                     print(curr_title + " *** " + curr_start)
 
@@ -192,12 +204,12 @@ if __name__ == "__main__":
         video_id = query["v"][0]
         FILENAME = video_id + ".wav"
         if not os.path.isfile(FILENAME):
-                print("Downloading video from YouTube")
-                with YoutubeDL(ydl_opts) as ydl:
-                    ydl.download(['http://www.youtube.com/watch?v=' + video_id])
-                print("\nConversion complete")
+            print("Downloading video from YouTube")
+            with YoutubeDL(ydl_opts) as ydl:
+                ydl.download(['http://www.youtube.com/watch?v=' + video_id])
+            print("\nConversion complete")
         else:
-                print("Found matching file")
+            print("Found matching file")
         print("Loading audio file")
         album = AudioSegment.from_file(FILENAME, 'wav')
     else:
@@ -219,7 +231,8 @@ if __name__ == "__main__":
         # initialize/start threads
         threads = []
         for i in range(NUM_THREADS):
-            new_thread = Thread(target=thread_func, args=(album, tracks_start, queue, FOLDER, ARTIST, ALBUM))
+            new_thread = Thread(target=thread_func, args=(
+                album, tracks_start, queue, FOLDER, ARTIST, ALBUM))
             new_thread.start()
             threads.append(new_thread)
         # wait for them to finish
@@ -230,5 +243,6 @@ if __name__ == "__main__":
         tracks_titles.append("END")
         for i, track in enumerate(tracks_titles):
             if i != len(tracks_titles)-1:
-                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
+                split_song(album, tracks_start, i, track, FOLDER,
+                           ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
     print("All Done")
