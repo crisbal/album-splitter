@@ -27,6 +27,10 @@ def track_parser(s):
     :param s: Track string to split
     :return: (time, title) tuple
     """
+
+    # Making sure the encoding is UTF-8
+    s = s.decode('utf-8', 'ignore')
+
     try:
         # Explanation:                     HH optional          MM   and   SS required
         regex = re.compile('(?P<start>(?:([01]?\d|2[0-3]):)?([0-5]?\d):([0-5]?\d))')

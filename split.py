@@ -27,7 +27,7 @@ def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
 if __name__ == "__main__":
     # arg parsing
     parser = argparse.ArgumentParser(
-        description='Split a single-file mp3 Album into its tracks.')
+        description='Split a single-file Album into its tracks.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument(
         "-mp3", help="The .mp3 file you want to split.", metavar="mp3_file")

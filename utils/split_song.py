@@ -6,6 +6,7 @@ TAG_formats = ['mp3', 'mp4', 'm4a']
 # This could be 'libfdk_aac' if you want
 MP4_DEFAULT_CODEC = 'aac'
 
+
 def fname_check(name_str, spacer='_'):
     valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
     valid_name = ''
@@ -16,18 +17,24 @@ def fname_check(name_str, spacer='_'):
             valid_name += ' and '
         else:
             valid_name += spacer
-    return valid_name.replace('  ',' ')
+    return valid_name.replace('  ', ' ')
 
-def split_song(album, tracks_start, index, track, folder='.', artist=None, album_title=None, bitrate=None, output_format="mp3", timeskip_front=0, timeskip_end=0):
+
+def split_song(album, tracks_start, index, track, folder='.',
+               artist=None, album_title=None, bitrate=None, output_format="mp3",
+               timeskip_front=0, timeskip_end=0):
     print("\t{}) {}".format(str(index+1), track))
     start = tracks_start[index]+timeskip_front
     end = tracks_start[index+1]-timeskip_end
     duration = end - start
-    track_path = '{}/{:02d} - {}.{}'.format(folder, index+1, fname_check(track), output_format)
+    track_path = '{}/{:02d} - {}.{}'.format(
+        folder, index+1, fname_check(track), output_format)
     if output_format == 'm4a':
-        album[start:][:duration].export(track_path, format='mp4', bitrate=bitrate, codec=MP4_DEFAULT_CODEC)
+        album[start:][:duration].export(
+            track_path, format='mp4', bitrate=bitrate, codec=MP4_DEFAULT_CODEC)
     else:
-        album[start:][:duration].export(track_path, format=output_format, bitrate=bitrate)
+        album[start:][:duration].export(
+            track_path, format=output_format, bitrate=bitrate)
 
     # Let's tag!
     if output_format in TAG_formats:
