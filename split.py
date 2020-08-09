@@ -14,7 +14,8 @@ from youtube_dl import YoutubeDL
 
 from split_init import METADATA_PROVIDERS, ydl_opts
 from utils import (split_song, time_to_seconds,
-                   track_parser, update_time_change)
+                   track_parser, update_time_change,
+                   tracks_editor)
 
 
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
@@ -168,10 +169,11 @@ if __name__ == "__main__":
     tracks_start = []
     tracks_titles = []
 
-    # Let's check up if tracks file exists!! if not.. quit it!
+    # Let's check up if tracks file exists!!
+    # if not, open an editor window
     if not os.path.isfile(TRACKS_FILE_NAME):
         print("I can't find "+str(TRACKS_FILE_NAME))
-        sys.exit(-1)
+        te = tracks_editor(TRACKS_FILE_NAME)
 
     print("Parsing " + TRACKS_FILE_NAME)
     with open(TRACKS_FILE_NAME) as tracks_file:

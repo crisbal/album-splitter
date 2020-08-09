@@ -29,7 +29,8 @@ def track_parser(s):
     """
 
     # Making sure the encoding is UTF-8
-    s = s.decode('utf-8', 'ignore')
+    bs = bytes(s, 'utf-8')
+    s = bs.decode('utf-8')
 
     try:
         # Explanation:                     HH optional          MM   and   SS required
