@@ -8,7 +8,7 @@ added_files = [
          ( './split_init.py', '.')
          ]
 
-hiddenmodules = ['bs4']
+hiddenmodules = ['bs4', 'tkinter']
 
 a = Analysis(['split.py'],
              pathex=['c:\\Album Splitter\\album-splitter'],
