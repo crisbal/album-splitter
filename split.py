@@ -98,9 +98,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-of", "--output-format",
-        help="Specify the output file format. Dependent on FFMpeg. Default: mp3",
+        help="Specify the output file format. Dependent on FFMpeg. Default: m4a",
         dest="output_format",
-        default="mp3"
+        default="m4a"
     )
     parser.add_argument(
         "-tts", "--track-timeskip",
@@ -109,7 +109,6 @@ if __name__ == "__main__":
         default=0
     )
     args = parser.parse_args()
-    TRACKS_FILE_NAME = args.tracks
     FILE_TYPE = args.output_format
     if args.mp3:
         FILENAME = args.mp3
@@ -127,6 +126,7 @@ if __name__ == "__main__":
     DRYRUN = args.dry
     BITRATE = args.bitrate
     TRK_TIMESKIP = int(args.trk_timeskip)
+    TRACKS_FILE_NAME = args.tracks
 
     if DRYRUN:
         print("**** DRY RUN ****")
@@ -140,6 +140,7 @@ if __name__ == "__main__":
                 query = parse_qs(url_data.query)
                 video_id = query["v"][0]
                 FOLDER = "./splits/{}".format(video_id)
+                TRACKS_FILE_NAME = "{}_{}".format(video_id, 'tracks.txt')
             else:
                 FOLDER = "./splits/{}".format(str(uuid4())[:16])
     else:
@@ -172,7 +173,6 @@ if __name__ == "__main__":
     # Let's check up if tracks file exists!!
     # if not, open an editor window
     if not os.path.isfile(TRACKS_FILE_NAME):
-        print("I can't find "+str(TRACKS_FILE_NAME))
         te = tracks_editor(TRACKS_FILE_NAME)
 
     print("Parsing " + TRACKS_FILE_NAME)

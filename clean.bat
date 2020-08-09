@@ -4,5 +4,5 @@ rmdir /S /Q .\build
 rmdir /S /Q .\dist
 rmdir /S /Q .\splits
 mkdir .\splits
-del .\tracks.txt
+del .\tracks.txt .\*_tracks.txt
 type NUL > tracks.txt
