@@ -2,7 +2,9 @@ from mutagen.easyid3 import EasyID3
 from mutagen.easymp4 import EasyMP4
 import string
 
-TAG_formats = ['mp3', 'mp4']
+TAG_formats = ['mp3', 'mp4', 'm4a']
+# This could be 'libfdk_aac' if you want
+MP4_DEFAULT_CODEC = 'aac'
 
 def fname_check(name_str, spacer='_'):
     valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
@@ -23,16 +25,16 @@ def split_song(album, tracks_start, index, track, folder='.', artist=None, album
     duration = end - start
     track_path = '{}/{:02d} - {}.{}'.format(folder, index+1, fname_check(track), output_format)
     if output_format == 'm4a':
-        album[start:][:duration].export(track_path, format='mp4', bitrate=bitrate, codec='aac')
+        album[start:][:duration].export(track_path, format='mp4', bitrate=bitrate, codec=MP4_DEFAULT_CODEC)
     else:
         album[start:][:duration].export(track_path, format=output_format, bitrate=bitrate)
 
-
+    # Let's tag!
     if output_format in TAG_formats:
         print("\t\tTagging")
         if output_format == "mp3":
             song = EasyID3(track_path)
-        elif output_format == "mp4":
+        elif output_format == "mp4" or output_format == "m4a":
             song = EasyMP4(track_path)
         if artist:
             song['artist'] = artist
@@ -41,5 +43,3 @@ def split_song(album, tracks_start, index, track, folder='.', artist=None, album
         song['title'] = track
         song['tracknumber'] = str(index+1)
         song.save()
-    else:
-        print("Output format doesn't seem to support ID3. Skipping Tagging.")

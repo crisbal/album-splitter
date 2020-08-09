@@ -30,7 +30,7 @@ def ydl_hook(d):
         sys.stdout.flush()
     elif d['status'] == 'finished':
         sys.stdout.write('\r\033[K')
-        sys.stdout.write('\tDownload complete\n\tConverting video to music file such as mp3')
+        sys.stdout.write('\tDownload complete\n\tConverting video to music file...')
         sys.stdout.flush()
 
 
