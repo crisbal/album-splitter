@@ -8,7 +8,7 @@ added_files = [
          ( './split_init.py', '.')
          ]
 
-hiddenmodules = ['bs4', 'tkinter']
+hiddenmodules = ['bs4', 'pyqt5', 'QVBoxLayout', 'QPlainTextEdit', 'QWidget', 'QStatusBar', 'QAction', 'QMessageBox','QFileDialog','QPrintDialog']
 
 a = Analysis(['split.py'],
              pathex=['c:\\Album Splitter\\album-splitter'],

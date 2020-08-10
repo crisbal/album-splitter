@@ -17,6 +17,10 @@ from utils import (split_song, time_to_seconds,
                    track_parser, update_time_change,
                    tracks_editor)
 
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+
 
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
     while not queue.empty():
@@ -173,7 +177,11 @@ if __name__ == "__main__":
     # Let's check up if tracks file exists!!
     # if not, open an editor window
     if not os.path.isfile(TRACKS_FILE_NAME):
-        te = tracks_editor(TRACKS_FILE_NAME)
+        app = QApplication(sys.argv)
+        app.setApplicationName("split.py - Tracks Editor")
+        te = tracks_editor(trk_fname=TRACKS_FILE_NAME)
+        app.exec_()
+        te.close()
 
     print("Parsing " + TRACKS_FILE_NAME)
     with open(TRACKS_FILE_NAME) as tracks_file:

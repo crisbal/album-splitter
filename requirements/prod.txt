@@ -2,4 +2,5 @@ beautifulsoup4
 mutagen
 pydub
 urlparse3
-youtube-dl
+PyQt5>=5.6
+sip
