@@ -7,8 +7,10 @@ import re
 from queue import Queue
 from threading import Thread
 from urllib.parse import urlparse, parse_qs
-from uuid import uuid4
+import subprocess as sbp
+# from uuid import uuid4
 
+from pydub import exceptions as pydub_excpetions
 from pydub import AudioSegment
 from youtube_dl import YoutubeDL
 
@@ -21,12 +23,15 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
+from mutagen.mp3 import MP3
+from mutagen.mp4 import MP4
 
-def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
+
+def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, FILE_TYPE, TRK_TIMESKIP, FFMPEG_MODE):
     while not queue.empty():
         song_tuple = queue.get()
         split_song(album, tracks_start, song_tuple[0], song_tuple[1],
-                   FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
+                   FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP_F, TRK_TIMESKIP_R, FFMPEG_MODE)
 
 
 if __name__ == "__main__":
@@ -47,7 +52,7 @@ if __name__ == "__main__":
         default=None
     )
     parser.add_argument(
-        "-A",  "--album",
+        "-A", "--album",
         help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag",
         default=None
     )
@@ -107,13 +112,19 @@ if __name__ == "__main__":
         default="m4a"
     )
     parser.add_argument(
-        "-tts", "--track-timeskip",
+        "-ttsf", "--track-timeskip-front",
         help="Specify timeskip from start in each track in ms. Default: 0 ms",
-        dest="trk_timeskip",
+        dest="trk_timeskip_f",
+        default=0
+    )
+    parser.add_argument(
+        "-ttsr", "--track-timeskip-rear",
+        help="Specify timeskip from the end in each track in ms. Default: 0 ms",
+        dest="trk_timeskip_r",
         default=0
     )
     args = parser.parse_args()
-    FILE_TYPE = args.output_format
+    FILE_TYPE = args.output_format.lower()
     if args.mp3:
         FILENAME = args.mp3
         FILE_TYPE = "mp3"
@@ -129,8 +140,10 @@ if __name__ == "__main__":
     METASRC = args.metadata
     DRYRUN = args.dry
     BITRATE = args.bitrate
-    TRK_TIMESKIP = int(args.trk_timeskip)
+    TRK_TIMESKIP_F = int(args.trk_timeskip_f)
+    TRK_TIMESKIP_R = int(args.trk_timeskip_r)
     TRACKS_FILE_NAME = args.tracks
+    FFMPEG_MODE = False
 
     if DRYRUN:
         print("**** DRY RUN ****")
@@ -146,7 +159,8 @@ if __name__ == "__main__":
                 FOLDER = "./splits/{}".format(video_id)
                 TRACKS_FILE_NAME = "{}_{}".format(video_id, 'tracks.txt')
             else:
-                FOLDER = "./splits/{}".format(str(uuid4())[:16])
+                # FOLDER = "./splits/{}".format(str(uuid4())[:16])
+                FOLDER = "./splits/{}".format(os.path.basename(FILENAME))
     else:
         FOLDER = args.folder
 
@@ -200,13 +214,15 @@ if __name__ == "__main__":
                 else:
                     t_start = time_to_seconds(curr_start)
 
-                tracks_start.append(t_start*1000)
+                tracks_start.append(t_start * 1000)
                 tracks_titles.append(curr_title)
 
     if DRYRUN:
         exit()
 
     print("Tracks file parsed")
+    print("# of tracks found: {}".format(len(tracks_start)))
+    print()
 
     album = None
     if YT_URL:
@@ -222,16 +238,49 @@ if __name__ == "__main__":
         else:
             print("Found matching file")
         print("Loading audio file")
-        album = AudioSegment.from_file(FILENAME, 'wav')
+        try:
+            album = AudioSegment.from_file(FILENAME, 'wav')
+        except pydub_excpetions.CouldntDecodeError:
+            album = FILENAME
+            FFMPEG_MODE = True
+
     else:
         print("Loading audio file")
-        if 'mp3' in FILENAME:
-            album = AudioSegment.from_file(FILENAME, 'mp3')
-        elif 'm4a' in FILENAME:
-            album = AudioSegment.from_file(FILENAME, 'm4a')
-    print("Audio file loaded")
+        try:
+            file_ext = \
+                os.path.splitext(FILENAME)[-1].replace('.', '').lower()
+            album = AudioSegment.from_file(FILENAME, file_ext)
+        except pydub_excpetions.CouldntDecodeError:
+            album = FILENAME
+            FFMPEG_MODE = True
 
-    tracks_start.append(len(album))  # we need this for the last track/split
+    print("Audio file loaded")
+    if FFMPEG_MODE:
+        print("Too large file! FFMpeg will be used!")
+
+    if FFMPEG_MODE:
+        # Let's convert the album file into corresponding format.
+        album_ext = os.path.splitext(album)[-1].replace('.', '').lower()
+        if album_ext != FILE_TYPE:
+            cmd_convert = 'ffmpeg -i {inf} {nm}.{fmt}'
+            file_basename = os.path.splitext(album)[0]
+            print("Converting the album file to designated output file.")
+            cmd = cmd_convert.format(
+                inf=album, nm=file_basename, fmt=FILE_TYPE)
+            sbp.call(shell=True)
+            print("Removing the source file... to save space.")
+            os.remove(album)
+            album = "{}.{}".format(file_basename, FILE_TYPE)
+
+        if FILE_TYPE == 'mp3':
+            tracks_start.append(MP3(album).info.length * 1000)
+        elif FILE_TYPE == 'mp4' or FILE_TYPE == 'm4a':
+            tracks_start.append(MP4(album).info.length * 1000)
+        else:
+            print("Uh oh... not sure how to handle other files w/o pydub")
+    else:
+        # we need this for the last track/split
+        tracks_start.append(len(album))
 
     print("Starting to split")
     if THREADED and NUM_THREADS > 1:
@@ -243,7 +292,7 @@ if __name__ == "__main__":
         threads = []
         for i in range(NUM_THREADS):
             new_thread = Thread(target=thread_func, args=(
-                album, tracks_start, queue, FOLDER, ARTIST, ALBUM))
+                album, tracks_start, queue, FOLDER, ARTIST, ALBUM, FILE_TYPE, TRK_TIMESKIP_F, TRK_TIMESKIP_R, FFMPEG_MODE))
             new_thread.start()
             threads.append(new_thread)
         # wait for them to finish
@@ -253,7 +302,7 @@ if __name__ == "__main__":
     else:
         tracks_titles.append("END")
         for i, track in enumerate(tracks_titles):
-            if i != len(tracks_titles)-1:
+            if i != len(tracks_titles) - 1:
                 split_song(album, tracks_start, i, track, FOLDER,
-                           ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP)
+                           ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP_F, TRK_TIMESKIP_R, FFMPEG_MODE)
     print("All Done")
