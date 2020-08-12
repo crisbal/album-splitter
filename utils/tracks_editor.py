@@ -13,6 +13,7 @@ from PyQt5.QtPrintSupport import *
 
 import os
 import sys
+import io
 
 class tracks_editor(QMainWindow):
 
@@ -127,7 +128,7 @@ class tracks_editor(QMainWindow):
 
         if path:
             try:
-                with open(path, 'rU') as f:
+                with io.open(path, 'r', encoding='utf8') as f:
                     text = f.read()
 
             except Exception as e:
@@ -166,9 +167,9 @@ class tracks_editor(QMainWindow):
         self.close()
 
     def _save_to_path(self, path):
-        text = self.editor.toPlainText().encode("utf-8").decode('cp949')
+        text = self.editor.toPlainText().encode("utf-8").decode('utf-8')
         try:
-            with open(path, 'w') as f:
+            with io.open(path, 'w', encoding='utf8') as f:
                 f.write(text)
 
         except Exception as e:

@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import re
+import io
 from queue import Queue
 from threading import Thread
 from urllib.parse import urlparse, parse_qs
@@ -200,7 +201,7 @@ if __name__ == "__main__":
         te.close()
 
     print("Parsing " + TRACKS_FILE_NAME)
-    with open(TRACKS_FILE_NAME) as tracks_file:
+    with io.open(TRACKS_FILE_NAME, 'r', encoding='utf8') as tracks_file:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracks_file):
             stripped_line = line.strip()
