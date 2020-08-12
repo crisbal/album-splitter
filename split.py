@@ -238,9 +238,10 @@ if __name__ == "__main__":
         else:
             print("Found matching file")
         print("Loading audio file")
-        try:
+
+        if os.stat(FILENAME).st_size < 4*1024*2014:
             album = AudioSegment.from_file(FILENAME, 'wav')
-        except pydub_excpetions.CouldntDecodeError:
+        else:
             album = FILENAME
             FFMPEG_MODE = True
 
@@ -267,7 +268,7 @@ if __name__ == "__main__":
             print("Converting the album file to designated output file.")
             cmd = cmd_convert.format(
                 inf=album, nm=file_basename, fmt=FILE_TYPE)
-            sbp.call(shell=True)
+            sbp.call(cmd, shell=True)
             print("Removing the source file... to save space.")
             os.remove(album)
             album = "{}.{}".format(file_basename, FILE_TYPE)
