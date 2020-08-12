@@ -14,7 +14,7 @@ TAG_formats = ['mp3', 'mp4', 'm4a']
 # This could be 'libfdk_aac' if you want
 MP4_DEFAULT_CODEC = 'aac'
 
-cmd_string_split = 'ffmpeg -i "{tr}" -acodec copy -ss {st} -to {en} "{nm}"'
+cmd_string_split = 'ffmpeg -y -i "{tr}" -acodec copy -ss {st} -to {en} "{nm}"'
 
 
 def fname_check(name_str, spacer='_'):

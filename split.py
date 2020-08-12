@@ -26,6 +26,8 @@ from PyQt5.QtCore import *
 from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
 
+PYDUB_MAX_SIZE = 4*1024*1024
+
 
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, FILE_TYPE, TRK_TIMESKIP, FFMPEG_MODE):
     while not queue.empty():
@@ -239,7 +241,7 @@ if __name__ == "__main__":
             print("Found matching file")
         print("Loading audio file")
 
-        if os.stat(FILENAME).st_size < 4*1024*2014:
+        if os.stat(FILENAME).st_size < PYDUB_MAX_SIZE:
             album = AudioSegment.from_file(FILENAME, 'wav')
         else:
             album = FILENAME
@@ -247,11 +249,14 @@ if __name__ == "__main__":
 
     else:
         print("Loading audio file")
-        try:
-            file_ext = \
-                os.path.splitext(FILENAME)[-1].replace('.', '').lower()
+        file_ext = os.path.splitext(FILENAME)[-1].replace('.', '').lower()
+        f_size =  os.stat(FILENAME).st_size
+        if file_ext != 'wav':
+            f_size *= 5
+
+        if f_size < PYDUB_MAX_SIZE:
             album = AudioSegment.from_file(FILENAME, file_ext)
-        except pydub_excpetions.CouldntDecodeError:
+        else:
             album = FILENAME
             FFMPEG_MODE = True
 
@@ -263,11 +268,11 @@ if __name__ == "__main__":
         # Let's convert the album file into corresponding format.
         album_ext = os.path.splitext(album)[-1].replace('.', '').lower()
         if album_ext != FILE_TYPE:
-            cmd_convert = 'ffmpeg -i {inf} {nm}.{fmt}'
+            cmd_convert = 'ffmpeg -y -i {inf} -ab {br} {nm}.{fmt}'
             file_basename = os.path.splitext(album)[0]
             print("Converting the album file to designated output file.")
             cmd = cmd_convert.format(
-                inf=album, nm=file_basename, fmt=FILE_TYPE)
+                inf=album, br=BITRATE, nm=file_basename, fmt=FILE_TYPE)
             sbp.call(cmd, shell=True)
             print("Removing the source file... to save space.")
             os.remove(album)
