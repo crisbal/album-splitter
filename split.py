@@ -231,9 +231,16 @@ if __name__ == "__main__":
         url_data = urlparse(YT_URL)
         query = parse_qs(url_data.query)
         video_id = query["v"][0]
-        FILENAME = video_id + ".wav"
+        FILENAME = "{}.{}".format(video_id, FILE_TYPE)
         if not os.path.isfile(FILENAME):
             print("Downloading video from YouTube")
+            # convert the source file into the desired output format.
+            ydl_opts['postprocessors'] = \
+                [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': FILE_TYPE.lower(),
+                    'preferredquality': '0',
+                }]
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.download(['http://www.youtube.com/watch?v=' + video_id])
             print("\nConversion complete")
