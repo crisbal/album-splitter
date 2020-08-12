@@ -5,4 +5,4 @@ rmdir /S /Q .\dist
 rmdir /S /Q .\splits
 mkdir .\splits
 del .\tracks.txt .\*_tracks.txt
-type NUL > tracks.txt
+del *.webm.part

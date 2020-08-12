@@ -4,8 +4,8 @@ import re
 NOISE = [
     ' - ',
     '^-',
-    '(?:-)?[0-9]{1,2} - ',
-    '(?:-)?[0-9]{1,2}\.'
+    '(?:-)?[0-9]{1,3} - ',
+    '(?:-)?[0-9]{1,3}\.'
 ]
 
 
@@ -13,8 +13,8 @@ def track_parser(s):
     """
     Matches any combination of the following:
     Beginning of a line:
-        - 1. to 99.
-        - 1 to 99
+        - 1. to 999.
+        - 1 to 999
         - title
         - time in HH(optional):MM(required):SS(required) format
     Middle:
@@ -31,6 +31,10 @@ def track_parser(s):
     # Making sure the encoding is UTF-8
     bs = bytes(s, 'utf-8')
     s = bs.decode('utf-8')
+
+    # Knock out or ignore comments. - Redaundant
+    if s[0] == '#':
+        return 'comment', 'comment'
 
     try:
         # Explanation:                     HH optional          MM   and   SS required

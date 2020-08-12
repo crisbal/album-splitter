@@ -187,7 +187,8 @@ if __name__ == "__main__":
     with open(TRACKS_FILE_NAME) as tracks_file:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracks_file):
-            if len(line.strip()) > 0:
+            stripped_line = line.strip()
+            if len(stripped_line) > 0 and stripped_line[0] != '#':
                 curr_start, curr_title = track_parser(line)
 
                 if DRYRUN:

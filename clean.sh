@@ -1,6 +1,6 @@
 #!/bin/sh
-rm -rf ./*.wav ./*.mp4 ./*.m4a ./*.mp3
-rm -rf ./build ./dist
-rm -rf ./splits/*
-rm -rf ./tracks.txt ./*_tracks.txt
-touch ./tracks.txt
+rm -rvf ./*.wav ./*.mp4 ./*.m4a ./*.mp3
+rm -rvf ./build ./dist
+rm -rvf ./splits/*
+rm -rvf ./tracks.txt ./*_tracks.txt
+rm -rvf ./*.webm.part

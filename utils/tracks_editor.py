@@ -19,11 +19,19 @@ class tracks_editor(QMainWindow):
     def __init__(self, trk_fname='tracks.txt', *args, **kwargs):
         super(tracks_editor, self).__init__(*args, **kwargs)
 
+        init_win_size = [600, 700]
+        self.resize(init_win_size[0], init_win_size[1])
+
         layout = QVBoxLayout()
         self.editor = QPlainTextEdit()
 
         # Setup the QTextEdit editor configuration
-        fixedfont = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+        # Checking it out from QT font database didn't work on
+        # OS X. So, I've taken some brutal(?) approach by
+        # selecting fonts myself.
+        fixedfont = QFont("Menlo,Fira Mono,Consolas,Courier,monospace")
+        fixedfont.setStyleHint(QFont.Monospace)
+
         fixedfont.setPointSize(12)
         self.editor.setFont(fixedfont)
 
@@ -151,6 +159,7 @@ class tracks_editor(QMainWindow):
             return self.file_saveas()
 
         self._save_to_path(self.path)
+        self.close()
 
     def closeEvent(self, event):
         self.exit_save()
@@ -179,71 +188,3 @@ class tracks_editor(QMainWindow):
 
     def edit_toggle_wrap(self):
         self.editor.setLineWrapMode( 1 if self.editor.lineWrapMode() == 0 else 0 )
-
-# import tkinter as tk
-# from tkinter.filedialog import askopenfilename, asksaveasfilename
-# import os
-#
-# class tracks_editor(object):
-#     def __init__(self, trk_fname='tracks.txt', trk_info=''):
-#         self.trk_fname = trk_fname
-#         self.trk_info = trk_info
-#         if os.path.isfile(self.trk_fname):
-#             with open(self.trk_fname, 'r') as f:
-#                 self.trk_info = f.read()
-#
-#         self.window_title = "Tracklist editor - {}".format(self.trk_fname)
-#
-#         self.main_window()
-#
-#     def main_window(self):
-#         self.window = tk.Tk()
-#         self.window.title(self.window_title)
-#         self.window.rowconfigure(0, minsize=800, weight=1)
-#         self.window.columnconfigure(1, minsize=800, weight=1)
-#
-#         self.txt_edit = tk.Text(self.window)
-#         fr_buttons = tk.Frame(self.window, relief=tk.RAISED, bd=2)
-#         btn_open = tk.Button(fr_buttons, text="Open", command=self.open_file)
-#         btn_save = tk.Button(fr_buttons, text="Save As...", command=self.save_file)
-#
-#         btn_open.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
-#         btn_save.grid(row=1, column=0, sticky="ew", padx=5)
-#
-#         fr_buttons.grid(row=0, column=0, sticky="ns")
-#         self.txt_edit.grid(row=0, column=1, sticky="nsew")
-#
-#         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
-#         self.window.mainloop()
-#
-#     def open_file(self):
-#         """Open a file for editing."""
-#         filepath = askopenfilename(
-#             filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")]
-#         )
-#         if not filepath:
-#             return
-#         txt_edit.delete(1.0, tk.END)
-#         with open(filepath, "r") as input_file:
-#             text = input_file.read()
-#             self.txt_edit.insert(tk.END, text)
-#         self.window.title("Tracklist editor - {}".format(filepath))
-#
-#     def save_file(self):
-#         """Save the current file as a new file."""
-#         filepath = asksaveasfilename(
-#             defaultextension="txt",
-#             filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")],
-#         )
-#         if not filepath:
-#             return
-#         with open(filepath, "w") as output_file:
-#             text = self.txt_edit.get(1.0, tk.END)
-#             output_file.write(text)
-#         self.window.title("Tracklist editor - {}".format(filepath))
-#
-#     def on_closing(self):
-#         with open(self.trk_fname, 'w') as output_file:
-#             text = self.txt_edit.get(1.0, tk.END)
-#             output_file.write(text)
-#         self.window.destroy()
