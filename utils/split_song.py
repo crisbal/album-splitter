@@ -14,7 +14,7 @@ TAG_formats = ['mp3', 'mp4', 'm4a']
 # This could be 'libfdk_aac' if you want
 MP4_DEFAULT_CODEC = 'aac'
 
-cmd_string_split = 'ffmpeg -y -i "{tr}" -acodec copy -ss {st} -to {en} "{nm}"'
+cmd_string_split = 'ffmpeg -i "{tr}" -acodec copy -ss {st} -to {en} -y "{nm}"'
 
 
 def fname_check(name_str, spacer='_'):
@@ -111,13 +111,13 @@ def split_song_FFMpeg(album_file, tracks_start, index, track, folder='.',
         folder, index + 1, fname_check(track), output_format)
 
     # ignore if the splitted file already exists!!
-    if os.path.exists(track_path) and audio_length_test(track_path, duration*1000):
+    if os.path.exists(os.path.realpath(track_path)) and audio_length_test(os.path.realpath(track_path), duration*1000):
         print("Split already exists!! Passing!")
         return
 
     # Now let's call system ffmpeg to split it!!
     command = cmd_string_split.format(
-        tr=album_file, st=start, en=end, nm=track_path)
+        tr=os.path.realpath(album_file), st=start, en=end, nm=os.path.realpath(track_path))
     sbp.call(command, shell=True)
 
     TAG_it(output_format, track_path, artist, album_title, index, track)

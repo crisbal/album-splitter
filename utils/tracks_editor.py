@@ -166,7 +166,7 @@ class tracks_editor(QMainWindow):
         self.close()
 
     def _save_to_path(self, path):
-        text = self.editor.toPlainText()
+        text = self.editor.toPlainText().encode("utf-8").decode('cp949')
         try:
             with open(path, 'w') as f:
                 f.write(text)

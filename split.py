@@ -268,14 +268,14 @@ if __name__ == "__main__":
         # Let's convert the album file into corresponding format.
         album_ext = os.path.splitext(album)[-1].replace('.', '').lower()
         if album_ext != FILE_TYPE:
-            cmd_convert = 'ffmpeg -y -i {inf} -ab {br} {nm}.{fmt}'
-            file_basename = os.path.splitext(album)[0]
+            cmd_convert = 'ffmpeg -i "{inf}" -ab {br} -y "{nm}.{fmt}"'
+            file_basename = os.path.splitext(os.path.realpath(album))[0]
             print("Converting the album file to designated output file.")
             cmd = cmd_convert.format(
-                inf=album, br=BITRATE, nm=file_basename, fmt=FILE_TYPE)
+                inf=os.path.realpath(album), br=BITRATE, nm=file_basename, fmt=FILE_TYPE)
             sbp.call(cmd, shell=True)
-            print("Removing the source file... to save space.")
-            os.remove(album)
+            # print("Removing the source file... to save space.")
+            # os.remove(album)
             album = "{}.{}".format(file_basename, FILE_TYPE)
 
         if FILE_TYPE == 'mp3':
