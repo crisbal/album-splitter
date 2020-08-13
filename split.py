@@ -28,6 +28,7 @@ from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
 
 PYDUB_MAX_SIZE = 4*1024*1024
+YT_MAX_BITRATE = "128k"
 
 
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, FILE_TYPE, TRK_TIMESKIP, FFMPEG_MODE):
@@ -236,11 +237,15 @@ if __name__ == "__main__":
         if not os.path.isfile(FILENAME):
             print("Downloading video from YouTube")
             # convert the source file into the desired output format.
+            # try:
+            #     ffmpeg_bitrate = int(BITRATE)
+            # except ValueError:
+            #     ffmpeg_bitrate = int(BITRATE.lower().replace('k',''))
             ydl_opts['postprocessors'] = \
                 [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': FILE_TYPE.lower(),
-                    'preferredquality': '0',
+                    'preferredquality': YT_MAX_BITRATE.replace('k',''),
                 }]
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.download(['http://www.youtube.com/watch?v=' + video_id])
@@ -276,7 +281,7 @@ if __name__ == "__main__":
         # Let's convert the album file into corresponding format.
         album_ext = os.path.splitext(album)[-1].replace('.', '').lower()
         if album_ext != FILE_TYPE:
-            cmd_convert = 'ffmpeg -i "{inf}" -ab {br} -y "{nm}.{fmt}"'
+            cmd_convert = 'ffmpeg -hide_banner -loglevel panic -i "{inf}" -ab {br} -y "{nm}.{fmt}"'
             file_basename = os.path.splitext(os.path.realpath(album))[0]
             print("Converting the album file to designated output file.")
             cmd = cmd_convert.format(
