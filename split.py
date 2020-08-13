@@ -28,7 +28,7 @@ from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
 
 PYDUB_MAX_SIZE = 4*1024*1024
-YT_MAX_BITRATE = "128k"
+YT_MAX_BITRATE = "192k"
 
 
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, FILE_TYPE, TRK_TIMESKIP, FFMPEG_MODE):
