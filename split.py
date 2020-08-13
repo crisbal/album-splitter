@@ -28,8 +28,24 @@ from mutagen.mp3 import MP3
 from mutagen.mp4 import MP4
 
 PYDUB_MAX_SIZE = 4*1024*1024
-YT_MAX_BITRATE = "192k"
-
+MAX_BITRATE = "256k"
+# TODO: Think of some elegant way to implement FFMpeg directives
+ACODEC_SHORTCUTS = {
+    'fdk': 'libfdk_aac -cutoff 18000',
+    'fdk_aac': 'libfdk_aac -cutoff 18000',
+    'aac': 'aac -cutoff 18000',
+    'mp3': 'libmp3lame',
+}
+ACODEC_PROFILES = {
+    'fdk_vbr': (ACODEC_SHORTCUTS['fdk'],'-vbr 5'),
+    'fdk': (ACODEC_SHORTCUTS['fdk'], "-b:a {}".format(MAX_BITRATE)),
+    'fdk_hq': (ACODEC_SHORTCUTS['fdk'], "-b:a 320k"),
+    'aac_vbr': (ACODEC_SHORTCUTS['aac'],'-q:a 0'),
+    'aac': (ACODEC_SHORTCUTS['aac'], "-b:a {}".format(MAX_BITRATE)),
+    'aac_hq': (ACODEC_SHORTCUTS['aac'], "-b:a 320k"),
+    'mp3_vbr': (ACODEC_SHORTCUTS['mp3'], '-q:a 0'),
+    'mp3': (ACODEC_SHORTCUTS['aac'], "-b:a {}".format(MAX_BITRATE)),
+}
 
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, FILE_TYPE, TRK_TIMESKIP, FFMPEG_MODE):
     while not queue.empty():
@@ -50,6 +66,7 @@ if __name__ == "__main__":
     group.add_argument(
         "-yt", help="The YouTube video url you want to download and split.", metavar="youtube_url"
     )
+
     parser.add_argument(
         "-a", "--artist",
         help="Specify the artist that the mp3s will be ID3-tagged with. Default: no tag",
@@ -106,8 +123,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-bitrate",
-        help="Specify the bitrate of the export. Default: '320k'",
-        default="320k"
+        help="Specify the bitrate of the export. Default: '{}'".format(MAX_BITRATE),
+        default=MAX_BITRATE
     )
     parser.add_argument(
         "-of", "--output-format",
@@ -127,6 +144,19 @@ if __name__ == "__main__":
         dest="trk_timeskip_r",
         default=0
     )
+    parser.add_argument(
+        "--codec_info",
+        help="Specify FFMpeg audio codec command. Default: None",
+        dest="ffmpeg_acodec_info",
+        default=""
+    )
+    parser.add_argument(
+        "--profile",
+        help="Define Lossy audio encoding method profiles: {}".format(ACODEC_PROFILES.keys()),
+        dest="ffmpeg_profile",
+        default="default"
+    )
+
     args = parser.parse_args()
     FILE_TYPE = args.output_format.lower()
     if args.mp3:
@@ -143,10 +173,15 @@ if __name__ == "__main__":
     NUM_THREADS = int(args.num_threads)
     METASRC = args.metadata
     DRYRUN = args.dry
-    BITRATE = args.bitrate
+    BITRATE = args.bitrate.lower()
     TRK_TIMESKIP_F = int(args.trk_timeskip_f)
     TRK_TIMESKIP_R = int(args.trk_timeskip_r)
     TRACKS_FILE_NAME = args.tracks
+    try:
+        ACODEC_INFO = ACODEC_SHORTCUTS[args.ffmpeg_acodec_info].lower()
+    except KeyError:
+        ACODEC_INFO = args.ffmpeg_acodec_info.lower()
+    FFMPEG_PROFILE = args.ffmpeg_profile.lower()
     FFMPEG_MODE = False
 
     if DRYRUN:
@@ -233,20 +268,9 @@ if __name__ == "__main__":
         url_data = urlparse(YT_URL)
         query = parse_qs(url_data.query)
         video_id = query["v"][0]
-        FILENAME = "{}.{}".format(video_id, FILE_TYPE)
+        FILENAME = "{}.{}".format(video_id, "wav")
         if not os.path.isfile(FILENAME):
             print("Downloading video from YouTube")
-            # convert the source file into the desired output format.
-            # try:
-            #     ffmpeg_bitrate = int(BITRATE)
-            # except ValueError:
-            #     ffmpeg_bitrate = int(BITRATE.lower().replace('k',''))
-            ydl_opts['postprocessors'] = \
-                [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': FILE_TYPE.lower(),
-                    'preferredquality': YT_MAX_BITRATE.replace('k',''),
-                }]
             with YoutubeDL(ydl_opts) as ydl:
                 ydl.download(['http://www.youtube.com/watch?v=' + video_id])
             print("\nConversion complete")
@@ -281,11 +305,33 @@ if __name__ == "__main__":
         # Let's convert the album file into corresponding format.
         album_ext = os.path.splitext(album)[-1].replace('.', '').lower()
         if album_ext != FILE_TYPE:
-            cmd_convert = 'ffmpeg -hide_banner -loglevel panic -i "{inf}" -ab {br} -y "{nm}.{fmt}"'
+            cmd_convert = 'ffmpeg -hide_banner -i "{inf}" {aci} {br} -y "{nm}.{fmt}"'
             file_basename = os.path.splitext(os.path.realpath(album))[0]
+
+            if FFMPEG_PROFILE == 'default':
+                # Setting up audio codec parameters
+                if ACODEC_INFO:
+                    acodec_param = "-acodec {}".format(ACODEC_INFO)
+                else:
+                    acodec_param = ''
+
+                # Setting up bitrate parameters
+                if BITRATE.lower().replace('k','').isnumeric():
+                    bit_rate_param = "-b:a {}".format(BITRATE)
+                elif BITRATE.lower() == 'vbr':
+                    if 'libfdk_aac' in acodec_param:
+                        bit_rate_param = "-vbr 5"
+                    else:
+                        bit_rate_param = "-q:a 0"
+            else:
+                acodec_param = '-acodec {}'.format(ACODEC_PROFILES[FFMPEG_PROFILE][0])
+                bit_rate_param = ACODEC_PROFILES[FFMPEG_PROFILE][1]
+
             print("Converting the album file to designated output file.")
             cmd = cmd_convert.format(
-                inf=os.path.realpath(album), br=BITRATE, nm=file_basename, fmt=FILE_TYPE)
+                inf=os.path.realpath(album), br=bit_rate_param,
+                aci=acodec_param,
+                nm=file_basename, fmt=FILE_TYPE)
             sbp.call(cmd, shell=True)
             # print("Removing the source file... to save space.")
             # os.remove(album)
