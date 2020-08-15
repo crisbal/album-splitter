@@ -1,4 +1,3 @@
-# ATTENTION: TO USE, ERASE THE LINES STARTING WITH #
 # This is an example file of how to write the tracks.txt file on your installation:
 #
 # 1) Copy this file and name the copy: tracks.txt
@@ -11,6 +10,9 @@
 #      bounds digit(s) will be omitted:
 #      ex1: MM:SS=67:61 will result in 7:6
 #      ex2: HH:MM:SS=24:05:01 will result in 24:05
+#
+# Sharp (#) placed at the first in the line indicates the line is a comment!
+#
 00:00:00 - When I Was Young
 03:28 - Dogs Eating Dogs
 06:58 Disaster
