@@ -30,7 +30,7 @@ class tracks_editor(QMainWindow):
         # Checking it out from QT font database didn't work on
         # OS X. So, I've taken some brutal(?) approach by
         # selecting fonts myself.
-        fixedfont = QFont("Menlo,Fira Mono,Consolas,Courier,monospace")
+        fixedfont = QFont("Consolas,Courier,monospace")
         fixedfont.setStyleHint(QFont.Monospace)
 
         fixedfont.setPointSize(12)
