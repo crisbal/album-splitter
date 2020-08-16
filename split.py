@@ -47,7 +47,7 @@ ACODEC_PROFILES = {
     'ogg_vbr': (ACODEC_SHORTCUTS['ogg'], "-q:a 8"),
     'ogg':(ACODEC_SHORTCUTS['ogg'], "-b:a {}".format(MAX_BITRATE)),
     'flac':(ACODEC_SHORTCUTS['flac'], ""),
-    'opus':(ACODEC_SHORTCUTS['opus'], "-vbr cvbr".format(OPUS_MAX_BITRATE)),
+    'opus':(ACODEC_SHORTCUTS['opus'], "-b:a {}".format(OPUS_MAX_BITRATE)),
     'opus_vbr':(ACODEC_SHORTCUTS['opus'], ""),
 }
 EXT_MAPPER = {
