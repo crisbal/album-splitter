@@ -9,13 +9,14 @@ from threading import Thread
 from urllib.parse import urlparse, parse_qs
 # from uuid import uuid4
 
-from pydub import exceptions as pydub_excpetions
+# from pydub import exceptions as pydub_excpetions
 from pydub import AudioSegment
 from youtube_dl import YoutubeDL
 
 from split_init import METADATA_PROVIDERS, ydl_opts
 from utils import (split_song, time_to_seconds,
-                   track_parser, update_time_change,
+                   track_parser, tracks_parser,
+                   update_time_change,
                    tracks_editor, ffmpeg_utils)
 from utils.ffmpeg_utils import (is_same_length, get_length)
 
@@ -23,7 +24,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
-PYDUB_MAX_SIZE = 4*1024*1024
+PYDUB_MAX_SIZE = 4 * 1024 * 1024
 MAX_BITRATE = "256k"
 OPUS_MAX_BITRATE = "160k"
 ACODEC_SHORTCUTS = {
@@ -36,19 +37,19 @@ ACODEC_SHORTCUTS = {
     'opus': 'libopus',
 }
 ACODEC_PROFILES = {
-    'fdk_vbr': (ACODEC_SHORTCUTS['fdk'],'-vbr 5'),
+    'fdk_vbr': (ACODEC_SHORTCUTS['fdk'], '-vbr 5'),
     'fdk': (ACODEC_SHORTCUTS['fdk'], "-b:a {}".format(MAX_BITRATE)),
     'fdk_hq': (ACODEC_SHORTCUTS['fdk'], "-b:a 320k"),
-    'aac_vbr': (ACODEC_SHORTCUTS['aac'],'-q:a 0'),
+    'aac_vbr': (ACODEC_SHORTCUTS['aac'], '-q:a 0'),
     'aac': (ACODEC_SHORTCUTS['aac'], "-b:a {}".format(MAX_BITRATE)),
     'aac_hq': (ACODEC_SHORTCUTS['aac'], "-b:a 320k"),
-    'mp3_vbr': (ACODEC_SHORTCUTS['mp3'], '-q:a 0','mp3'),
+    'mp3_vbr': (ACODEC_SHORTCUTS['mp3'], '-q:a 0', 'mp3'),
     'mp3': (ACODEC_SHORTCUTS['aac'], "-b:a {}".format(MAX_BITRATE)),
     'ogg_vbr': (ACODEC_SHORTCUTS['ogg'], "-q:a 8"),
-    'ogg':(ACODEC_SHORTCUTS['ogg'], "-b:a {}".format(MAX_BITRATE)),
-    'flac':(ACODEC_SHORTCUTS['flac'], ""),
-    'opus':(ACODEC_SHORTCUTS['opus'], "-b:a {}".format(OPUS_MAX_BITRATE)),
-    'opus_vbr':(ACODEC_SHORTCUTS['opus'], ""),
+    'ogg': (ACODEC_SHORTCUTS['ogg'], "-b:a {}".format(MAX_BITRATE)),
+    'flac': (ACODEC_SHORTCUTS['flac'], ""),
+    'opus': (ACODEC_SHORTCUTS['opus'], "-b:a {}".format(OPUS_MAX_BITRATE)),
+    'opus_vbr': (ACODEC_SHORTCUTS['opus'], "-b:a 128k"),
 }
 EXT_MAPPER = {
     'libfdk_aac': 'm4a',
@@ -63,11 +64,40 @@ EXT_MAPPER = {
 FFMPEG_DEFAULT_CODEC = "aac"
 FFMPEG_DEFAULT_EXT = "m4a"
 
+
+def set_source_file_format(sf_format):
+    ydl_opts['postprocessors'] = \
+        [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': sf_format,
+            'preferredquality': '0',
+        }]
+
+
+SOURCE_FILE_FORMAT = "wav"
+# SOURCE_FILE_FORMAT = "flac"
+ROLLBACK_SOURCE_FILE_FORMAT = "wav"
+set_source_file_format(SOURCE_FILE_FORMAT)
+
+
 def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, FILE_TYPE, TRK_TIMESKIP, FFMPEG_MODE):
     while not queue.empty():
         song_tuple = queue.get()
         split_song(album, tracks_start, song_tuple[0], song_tuple[1],
                    FOLDER, ARTIST, ALBUM, BITRATE, FILE_TYPE, TRK_TIMESKIP_F, TRK_TIMESKIP_R, FFMPEG_MODE)
+
+
+def check_FFMpeg_codec(current_codec, rollback_codec):
+    ffu = ffmpeg_utils()
+    if not ffu.check_codec(codec_name=current_codec):
+        print("{} is not supported by current FFMpeg!!".format(current_codec))
+        print("Codec: {}".format(current_codec))
+        print("FFMpeg: {}".format(ffu.ffmpeg_path))
+        print("Thus, reverting the main source file format to default one! ({})".format(
+            rollback_codec))
+        return False
+    else:
+        return True
 
 
 if __name__ == "__main__":
@@ -139,7 +169,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-bitrate",
-        help="Specify the bitrate of the export. Default: '{}'".format(MAX_BITRATE),
+        help="Specify the bitrate of the export. Default: '{}'".format(
+            MAX_BITRATE),
         default=MAX_BITRATE
     )
     parser.add_argument(
@@ -168,7 +199,8 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--profile",
-        help="Define Lossy audio encoding method profiles: {}".format(ACODEC_PROFILES.keys()),
+        help="Define Lossy audio encoding method profiles: {}".format(
+            ACODEC_PROFILES.keys()),
         dest="ffmpeg_profile",
         default="default"
     )
@@ -204,7 +236,8 @@ if __name__ == "__main__":
         FFMPEG_CODEC_NAME = FFMPEG_DEFAULT_CODEC
         ACODEC_INFO = ACODEC_SHORTCUTS['aac']
     else:
-        FFMPEG_CODEC_NAME = ACODEC_SHORTCUTS[FFMPEG_PROFILE.split('_')[0]].split(' ')[0]
+        FFMPEG_CODEC_NAME = ACODEC_SHORTCUTS[FFMPEG_PROFILE.split('_')[0]].split(' ')[
+            0]
     FFMPEG_EXT_NAME = EXT_MAPPER[FFMPEG_CODEC_NAME]
 
     try:
@@ -216,22 +249,23 @@ if __name__ == "__main__":
         FFMPEG_EXT_NAME = EXT_MAPPER[FFMPEG_CODEC_NAME]
 
     # Check codec exists!
-    # TODO: Implement rollback codec selector later.
-    from utils.ffmpeg_utils import ffmpeg_utils
-    futils = ffmpeg_utils()
-    if not futils.check_codec(codec_name=FFMPEG_CODEC_NAME):
-        ffu = ffmpeg_utils()
-        print("Specified codec is not supported by current FFMpeg!!")
-        print("Codec: {}".format(FFMPEG_CODEC_NAME))
-        print("FFMpeg: {}".format(ffu.ffmpeg_path))
-        print("Thus, reverting to default one! (AAC)")
+    # TODO: Implement more elegant rollback codec selector later.
+    # from utils.ffmpeg_utils import ffmpeg_utils
+
+    # Check up the source format. Default is flac but rollback
+    # as wav.
+    if not check_FFMpeg_codec(SOURCE_FILE_FORMAT, ROLLBACK_SOURCE_FILE_FORMAT):
+        set_source_file_format(ROLLBACK_SOURCE_FILE_FORMAT)
+
+    # Check up given output codec exists!
+    # rollback is 'aac' at this moment.
+    if not check_FFMpeg_codec(FFMPEG_CODEC_NAME, 'aac'):
         ACODEC_INFO = ACODEC_SHORTCUTS['aac']
         FFMPEG_CODEC_NAME = 'aac'
 
     FFMPEG_MODE = True
     if 'n' in args.ffmpeg_mode.lower():
         FFMPEG_MODE = False
-
 
     if FFMPEG_MODE:
         FILE_TYPE = FFMPEG_EXT_NAME
@@ -278,37 +312,18 @@ if __name__ == "__main__":
             print("There was no provider able to get data from your source!")
             exit()
 
-    tracks_start = []
-    tracks_titles = []
-
     # Let's check up if tracks file exists!!
     # if not, open an editor window
     if not os.path.isfile(TRACKS_FILE_NAME):
         app = QApplication(sys.argv)
         app.setApplicationName("split.py - Tracks Editor")
-        te = tracks_editor(trk_fname=TRACKS_FILE_NAME)
+        te = tracks_editor(trk_fname=TRACKS_FILE_NAME, duration=DURATION)
         app.exec_()
         te.close()
 
     print("Parsing " + TRACKS_FILE_NAME)
-    with io.open(TRACKS_FILE_NAME, 'r', encoding='utf8') as tracks_file:
-        time_elapsed = '0:00:00'
-        for i, line in enumerate(tracks_file):
-            stripped_line = line.strip()
-            if len(stripped_line) > 0 and stripped_line[0] != '#':
-                curr_start, curr_title = track_parser(line)
-
-                if DRYRUN:
-                    print(curr_title + " *** " + curr_start)
-
-                if DURATION:
-                    t_start = time_to_seconds(time_elapsed)
-                    time_elapsed = update_time_change(time_elapsed, curr_start)
-                else:
-                    t_start = time_to_seconds(curr_start)
-
-                tracks_start.append(t_start * 1000)
-                tracks_titles.append(curr_title)
+    tracks_start, tracks_titles = \
+        tracks_parser(TRACKS_FILE_NAME, DRYRUN, DURATION)
 
     if DRYRUN:
         exit()
@@ -322,7 +337,7 @@ if __name__ == "__main__":
         url_data = urlparse(YT_URL)
         query = parse_qs(url_data.query)
         video_id = query["v"][0]
-        FILENAME = "{}.{}".format(video_id, "wav")
+        FILENAME = "{}.{}".format(video_id, SOURCE_FILE_FORMAT)
         if not os.path.isfile(FILENAME):
             print("Downloading video from YouTube")
             with YoutubeDL(ydl_opts) as ydl:
@@ -333,7 +348,7 @@ if __name__ == "__main__":
         print("Loading audio file")
 
         if os.stat(FILENAME).st_size < PYDUB_MAX_SIZE:
-            album = AudioSegment.from_file(FILENAME, 'wav')
+            album = AudioSegment.from_file(FILENAME, SOURCE_FILE_FORMAT)
         else:
             album = FILENAME
             FFMPEG_MODE = True
@@ -341,8 +356,8 @@ if __name__ == "__main__":
     else:
         print("Loading audio file")
         file_ext = os.path.splitext(FILENAME)[-1].replace('.', '').lower()
-        f_size =  os.stat(FILENAME).st_size
-        if file_ext != 'wav':
+        f_size = os.stat(FILENAME).st_size
+        if file_ext != SOURCE_FILE_FORMAT:
             f_size *= 5
 
         if f_size < PYDUB_MAX_SIZE:
@@ -370,7 +385,7 @@ if __name__ == "__main__":
                     acodec_param = ''
 
                 # Setting up bitrate parameters
-                if BITRATE.lower().replace('k','').isnumeric():
+                if BITRATE.lower().replace('k', '').isnumeric():
                     bit_rate_param = "-b:a {}".format(BITRATE)
                 elif BITRATE.lower() == 'vbr':
                     if 'libfdk_aac' in acodec_param:
@@ -378,18 +393,21 @@ if __name__ == "__main__":
                     else:
                         bit_rate_param = "-q:a 0"
             else:
-                acodec_param = '-acodec {}'.format(ACODEC_PROFILES[FFMPEG_PROFILE][0])
+                acodec_param = '-acodec {}'.format(
+                    ACODEC_PROFILES[FFMPEG_PROFILE][0])
                 bit_rate_param = ACODEC_PROFILES[FFMPEG_PROFILE][1]
 
             ffmpeg_params_str = ' '.join([acodec_param, bit_rate_param])
 
             print("Converting the album file to designated output file.")
-            source_audio_name = "{}.{}".format(file_basename, 'wav')
+            source_audio_name = "{}.{}".format(
+                file_basename, SOURCE_FILE_FORMAT)
             converted_audio_name = "{}.{}".format(file_basename, FILE_TYPE)
 
             if os.path.exists(converted_audio_name) and is_same_length(source_audio_name, converted_audio_name):
                 print("Same file exists!! Skipping conversion!!")
-                print("Delete the previous converted long file to make sure newer encoding.")
+                print(
+                    "Delete the previous converted long file to make sure newer encoding.")
             else:
                 orig_stream = ffmpeg_utils(
                     input_file=source_audio_name,
@@ -403,7 +421,7 @@ if __name__ == "__main__":
             # os.remove(album)
             album = converted_audio_name
 
-        tracks_start.append(get_length(album)*1000)
+        tracks_start.append(get_length(album) * 1000)
     else:
         # we need this for the last track/split
         tracks_start.append(len(album))
