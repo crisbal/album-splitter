@@ -25,6 +25,7 @@ from PyQt5.QtCore import *
 
 PYDUB_MAX_SIZE = 4*1024*1024
 MAX_BITRATE = "256k"
+OPUS_MAX_BITRATE = "160k"
 ACODEC_SHORTCUTS = {
     'fdk': 'libfdk_aac -cutoff 18000',
     'fdk_aac': 'libfdk_aac -cutoff 18000',
@@ -46,7 +47,7 @@ ACODEC_PROFILES = {
     'ogg_vbr': (ACODEC_SHORTCUTS['ogg'], "-q:a 8"),
     'ogg':(ACODEC_SHORTCUTS['ogg'], "-b:a {}".format(MAX_BITRATE)),
     'flac':(ACODEC_SHORTCUTS['flac'], ""),
-    'opus':(ACODEC_SHORTCUTS['opus'], "-b:a {}".format(MAX_BITRATE)),
+    'opus':(ACODEC_SHORTCUTS['opus'], "-vbr cvbr".format(OPUS_MAX_BITRATE)),
     'opus_vbr':(ACODEC_SHORTCUTS['opus'], ""),
 }
 EXT_MAPPER = {
@@ -203,7 +204,7 @@ if __name__ == "__main__":
         FFMPEG_CODEC_NAME = FFMPEG_DEFAULT_CODEC
         ACODEC_INFO = ACODEC_SHORTCUTS['aac']
     else:
-        FFMPEG_CODEC_NAME = FFMPEG_PROFILE.split('_')[0]
+        FFMPEG_CODEC_NAME = ACODEC_SHORTCUTS[FFMPEG_PROFILE.split('_')[0]].split(' ')[0]
     FFMPEG_EXT_NAME = EXT_MAPPER[FFMPEG_CODEC_NAME]
 
     try:
