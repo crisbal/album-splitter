@@ -58,7 +58,7 @@ EXT_MAPPER = {
     'libvorbis': 'ogg',
     'ogg': 'ogg',
     'flac': 'flac',
-    'opus': 'opus'
+    'libopus': 'opus'
 }
 FFMPEG_DEFAULT_CODEC = "aac"
 FFMPEG_DEFAULT_EXT = "m4a"
