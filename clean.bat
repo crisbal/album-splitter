@@ -1,8 +1,8 @@
 @echo off
-del .\*.wav .\*.mp3 .\*.m4a .\*.opus .\*.ogg .\*.flac
-rmdir /S /Q .\build
-rmdir /S /Q .\dist
-rmdir /S /Q .\splits
-mkdir .\splits
-del .\tracks.txt .\*_tracks.txt
-del *.webm.part
+del /Q /F .\*.wav .\*.mp3 .\*.m4a .\*.opus .\*.ogg .\*.flac 2>nul
+rmdir /S /Q .\build 2>nul
+rmdir /S /Q .\dist 2>nul
+rmdir /S /Q .\splits 2>nul
+del /Q /F .\tracks.txt .\*_tracks.txt 2>nul
+del /Q /F *.webm.part 2>nul
+del /Q /F .\split.exe 2>nul

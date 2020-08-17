@@ -4,9 +4,10 @@ import math
 from shutil import which
 
 from .ffmpeg_utils import ffmpeg_utils
-from .ffmpeg_utils import (is_tool, get_length, is_same_length)
+from .ffmpeg_utils import get_length
 
 TAG_formats = ['mp3', 'mp4', 'm4a', 'ogg', 'flac', 'opus']
+
 
 def fname_check(name_str, spacer='_'):
     valid_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
@@ -105,7 +106,7 @@ def split_song_FFMpeg(album_file, tracks_start, index, track, folder='.',
         folder, index + 1, fname_check(track), output_format)
 
     # ignore if the splitted file already exists!!
-    if os.path.exists(os.path.realpath(track_path)) and audio_length_test(os.path.realpath(track_path), duration*1000):
+    if os.path.exists(os.path.realpath(track_path)) and audio_length_test(os.path.realpath(track_path), duration * 1000):
         print("Split already exists!! Passing!")
 
     else:
@@ -123,18 +124,20 @@ def split_song_FFMpeg(album_file, tracks_start, index, track, folder='.',
     return track_path
 
 # Main interface...
+
+
 def split_song(album, tracks_start, index, track, folder='.',
                artist=None, album_title=None, bitrate=None, output_format="mp3",
                timeskip_front=0, timeskip_end=0, FFMpeg_mode=False):
 
     if FFMpeg_mode:
         track_path = split_song_FFMpeg(album, tracks_start, index, track, folder,
-                                 artist, album_title, bitrate, output_format,
-                                 timeskip_front, timeskip_end)
+                                       artist, album_title, bitrate, output_format,
+                                       timeskip_front, timeskip_end)
     else:
         track_path = split_song_pydub(album, tracks_start, index, track, folder,
-                                artist, album_title, bitrate, output_format,
-                                timeskip_front, timeskip_end)
+                                      artist, album_title, bitrate, output_format,
+                                      timeskip_front, timeskip_end)
 
     if os.path.exists(track_path):
         TAG_it(output_format, track_path, artist, album_title, index, track)

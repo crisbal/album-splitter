@@ -5,19 +5,24 @@ import math
 import subprocess as sbp
 from shutil import which
 
+
 def is_tool(name):
     return which(name) is not None
+
 
 def get_length(input_media_file):
     if not is_tool('ffprobe'):
         print("ffprobe can't be found!! Returning 0")
         return
 
-    result = sbp.check_output(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-i', os.path.realpath(input_media_file)])
-    duration_str = result.decode('utf-8').replace('[FORMAT]','').replace('[/FORMAT]','').replace('duration=','').strip()
+    result = sbp.check_output(['ffprobe', '-v', 'error', '-show_entries',
+                               'format=duration', '-i', os.path.realpath(input_media_file)])
+    duration_str = result.decode(
+        'utf-8').replace('[FORMAT]', '').replace('[/FORMAT]', '').replace('duration=', '').strip()
     # print("result decoded utf8:",result.decode('utf-8').replace('[FORMAT]','').replace('[/FORMAT]','').replace('duration=','').strip())
     duration = float(duration_str)
     return duration
+
 
 def is_same_length(media_file_A, media_file_B):
     if not os.path.exists(media_file_A) or not os.path.exists(media_file_B):

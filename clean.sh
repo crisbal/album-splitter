@@ -4,3 +4,4 @@ rm -rvf ./build ./dist
 rm -rvf ./splits/*
 rm -rvf ./tracks.txt ./*_tracks.txt
 rm -rvf ./*.webm.part
+rm -rfv ./split
