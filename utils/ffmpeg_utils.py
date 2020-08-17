@@ -76,7 +76,7 @@ class ffmpeg_utils(object):
 
     def check_codec(self, codec_name):
         cmd = '{} -loglevel error -codecs'.format(self.ffmpeg_path)
-        output = sbp.check_output(cmd)
+        output = sbp.check_output(cmd, shell=True)
         if codec_name.lower() in str(output):
             return True
         else:
