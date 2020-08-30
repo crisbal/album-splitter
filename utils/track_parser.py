@@ -48,5 +48,5 @@ def track_parser(s):
         title = re.sub('|'.join(NOISE), '', regex.sub('', s, count=1)).strip()
         return start_time, title
     except AttributeError:
-        print('Error occurred when parsing the string: {}'.format(s))
+        # print('Error occurred when parsing the string: {}'.format(s))
         return '', ''

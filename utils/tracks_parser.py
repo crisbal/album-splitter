@@ -45,6 +45,9 @@ def tracks_parser_embed(tracks_info_text, DURATION):
         if len(stripped_line) > 0 and stripped_line[0] != '#':
             curr_start, curr_title = track_parser(line)
 
+            if curr_start == '' and curr_title == '':
+                continue
+
             if DURATION:
                 t_start = time_to_seconds(time_elapsed)
                 time_elapsed = update_time_change(time_elapsed, curr_start)
