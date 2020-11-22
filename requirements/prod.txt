@@ -3,3 +3,4 @@ mutagen==1.31
 pydub==0.14.2
 urlparse3==1.0.3
 youtube-dl
+html5lib==1.0b8
