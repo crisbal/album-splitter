@@ -20,8 +20,7 @@ def get_length(input_media_file):
     duration_str = result.decode(
         'utf-8').replace('[FORMAT]', '').replace('[/FORMAT]', '').replace('duration=', '').strip()
     # print("result decoded utf8:",result.decode('utf-8').replace('[FORMAT]','').replace('[/FORMAT]','').replace('duration=','').strip())
-    duration = float(duration_str)
-    return duration
+    return float(duration_str)
 
 
 def is_same_length(media_file_A, media_file_B):

@@ -1,8 +1,8 @@
 # A simple GUI implementation to show parsed results.
 
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 from PyQt5.QtPrintSupport import *
 
 from .tracks_parser import tracks_parser_embed

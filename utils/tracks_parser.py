@@ -32,13 +32,11 @@ def tracks_parser(tracks_info_file, DRYRUN, DURATION):
 
     return tracks_start, tracks_titles
 
-
 def tracks_parser_embed(tracks_info_text, DURATION):
     tracks_start = []
     tracks_titles = []
-
     time_elapsed = '0:00:00'
-
+    
     tracks_info_list = tracks_info_text.split('\n')
     for i, line in enumerate(tracks_info_list):
         stripped_line = line.strip()
