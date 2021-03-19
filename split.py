@@ -15,10 +15,10 @@ from split_init import METADATA_PROVIDERS, ydl_opts
 from utils import (split_song, time_to_seconds, track_parser, update_time_change)
 
 
-def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM):
+def thread_func(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, YEAR, BITRATE, FORMAT):
     while not queue.empty():
         song_tuple = queue.get()
-        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM, BITRATE)
+        split_song(album, tracks_start, song_tuple[0], song_tuple[1], FOLDER, ARTIST, ALBUM, YEAR, BITRATE, FORMAT)
 
 
 if __name__ == "__main__":
@@ -37,6 +37,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "-A",  "--album",
         help="Specify the album that the mp3s will be ID3-tagged with. Default: no tag",
+        default=None
+    )
+    parser.add_argument(
+        "-Y",  "--year",
+        help="Specify the year that the mp3s will be ID3-tagged with. Default: no tag",
         default=None
     )
     parser.add_argument(
@@ -88,11 +93,17 @@ if __name__ == "__main__":
         help="Specify the bitrate of the export. Default: '320k'",
         default="320k"
     )
+    parser.add_argument(
+        "-format",
+        help="Specify the format of the export. Default: 'mp3'",
+        default="mp3"
+    )
     args = parser.parse_args()
     TRACKS_FILE_NAME = args.tracks
     FILENAME = args.mp3
     YT_URL = args.yt
     ALBUM = args.album
+    YEAR = args.year
     ARTIST = args.artist
     DURATION = args.duration
     THREADED = args.threaded
@@ -100,6 +111,7 @@ if __name__ == "__main__":
     METASRC = args.metadata
     DRYRUN = args.dry
     BITRATE = args.bitrate
+    FORMAT = args.format
 
     if DRYRUN:
         print("**** DRY RUN ****")
@@ -196,7 +208,7 @@ if __name__ == "__main__":
         # initialize/start threads
         threads = []
         for i in range(NUM_THREADS):
-            new_thread = Thread(target=thread_func, args=(album, tracks_start, queue, FOLDER, ARTIST, ALBUM))
+            new_thread = Thread(target=thread_func, args=(album, tracks_start, queue, FOLDER, ARTIST, ALBUM, YEAR, BITRATE, FORMAT))
             new_thread.start()
             threads.append(new_thread)
         # wait for them to finish
@@ -207,5 +219,5 @@ if __name__ == "__main__":
         tracks_titles.append("END")
         for i, track in enumerate(tracks_titles):
             if i != len(tracks_titles)-1:
-                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM, BITRATE)
+                split_song(album, tracks_start, i, track, FOLDER, ARTIST, ALBUM, YEAR, BITRATE, FORMAT)
     print("All Done")
