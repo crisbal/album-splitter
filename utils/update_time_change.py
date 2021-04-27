@@ -32,23 +32,24 @@ def update_time_change(time_elapsed, track_time):
         elapsed_s -= 60
         elapsed_m += 1
 
-    str_h = ""
-    str_m = ""
-    str_s = ""
-    # 1 -> 01
-    if elapsed_h < 10:
-        str_h = "0" + str(elapsed_h)
-    else:
-        str_h = str(elapsed_h)
+    str_h = str(elapsed_h).zfill(2)
+    str_m = str(elapsed_m).zfill(2)
+    str_s = str(elapsed_s).zfill(2)
 
-    if elapsed_m < 10:
-        str_m = "0" + str(elapsed_m)
-    else:
-        str_m = str(elapsed_m)
+    # # 1 -> 01
+    # if elapsed_h < 10:
+    #     str_h = "0" + str(elapsed_h)
+    # else:
+    #     str_h = str(elapsed_h)
 
-    if elapsed_s < 10:
-        str_s = "0" + str(elapsed_s)
-    else:
-        str_s = str(elapsed_s)
+    # if elapsed_m < 10:
+    #     str_m = "0" + str(elapsed_m)
+    # else:
+    #     str_m = str(elapsed_m)
+
+    # if elapsed_s < 10:
+    #     str_s = "0" + str(elapsed_s)
+    # else:
+    #     str_s = str(elapsed_s)
 
     return '{}:{}:{}'.format(str_h, str_m, str_s)

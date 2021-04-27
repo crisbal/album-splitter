@@ -6,3 +6,7 @@ splits/
 __pycache__/
 .idea
 tracks.txt
+build/
+dist/
+./split
+./split.exe
