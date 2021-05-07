@@ -142,7 +142,7 @@ if __name__ == "__main__":
     tracks_titles = []
 
     print("Parsing " + TRACKS_FILE_NAME)
-    with open(TRACKS_FILE_NAME) as tracks_file:
+    with open(TRACKS_FILE_NAME, encoding = 'utf-8') as tracks_file:
         time_elapsed = '0:00:00'
         for i, line in enumerate(tracks_file):
             if len(line.strip()) > 0:
