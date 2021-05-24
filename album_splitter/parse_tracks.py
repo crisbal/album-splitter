@@ -23,6 +23,8 @@ def parse_tracks(tracks_content: str, duration: bool = False):
     for line in lines:
         if line.startswith("#"):
             continue
+        elif len(line.strip()) == 0:
+            continue
         else:
             track_time, title = parse_line(line)
             track_time_seconds = parse_time_string(track_time)
