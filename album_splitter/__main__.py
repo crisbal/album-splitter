@@ -111,6 +111,7 @@ if __name__ == "__main__":
             else:
                 args.folder = "./splits/{}".format(secure_filename(args.audio_file))
 
+    print("Reading tracks file")
     tracks_file = Path(args.tracks)
     if not tracks_file.exists():
         print(f"Can't find tracks file: {tracks_file}")
@@ -138,7 +139,11 @@ if __name__ == "__main__":
         for k, v in tag_data.items():
             print(f"{k} - {v}")
         exit()
-
+    else:
+        print("Found the following tracks: ")
+        for track in tracks:
+            fmt_timestamp = datetime.timedelta(seconds=track.start_timestamp)
+            print(f"\t{track.title} - {fmt_timestamp}")
     input_file = None
     if args.audio_file:
         input_file = Path(args.audio_file)
@@ -153,7 +158,7 @@ if __name__ == "__main__":
                 ydl.download([args.youtube_url])
             print("\nConversion complete")
         else:
-            print("Found matching file")
+            print("Found matching file locally, no need to redownload from YouTube")
 
     if not input_file or not input_file.exists():
         print(f"Can't find input file: {input_file}")
@@ -164,6 +169,10 @@ if __name__ == "__main__":
     outfolder.mkdir(parents=True, exist_ok=True)
 
     # do the work
+    print("Splitting into files... (this could take a while)")
     output_files = split_file(input_file, tracks, outfolder, output_format=str(input_file).split(".")[-1])
+    print("Tagging files, almost done...")
     for file in output_files:
         tag_file(file, tag_data)
+    print("Done!")
+
