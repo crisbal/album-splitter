@@ -17,7 +17,7 @@ def split_file(input_file: Path, tracks: list[Track], destination: Path, output_
         end_timestamp = file_duration if i == len(tracks) - 1 else tracks[i + 1].start_timestamp
         outputs[
             destination / (f"{track.title}.{output_format}")
-        ] = "-ss {start_timestamp} -to {end_timestamp}"
+        ] = f"-ss {start_timestamp} -to {end_timestamp}"
     split_command = ffmpy.FFmpeg(
         inputs={input_file: "-y -hide_banner -loglevel error -stats"}, outputs=outputs
     )
