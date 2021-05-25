@@ -30,7 +30,7 @@ This script is for you!
     * A track on each line
     * See *Examples* section, many other formats supported
 + Run the script
-    * Basic usage: `python -m album_splitter -file <path/to/your/album.mp3>`
+    * Basic usage: `python -m album_splitter --file <path/to/your/album.mp3>`
     * More in the *Examples* section
 + Wait for the splitting process to complete
 + You will find your tracks in the `splits` folder
@@ -78,7 +78,7 @@ These songs are already mp3-tagged with their track name and track number, but n
 
 + I somehow got the file `DogsEatingDogsAlbum.mp3` that I want to split
 + I set the tracklist in `tracks.txt` (same tracks as before)
-+ I execute `python -m album_splitter -file DogsEatingDogsAlbum.mp3 --album "Dogs Eating Gods" --artist "blink-182" --folder "2012 - Dogs Eating Dogs"`
++ I execute `python -m album_splitter --file DogsEatingDogsAlbum.mp3 --album "Dogs Eating Gods" --artist "blink-182" --folder "2012 - Dogs Eating Dogs"`
 + The software will execute, it will split the album, and mp3-tag each track with the author and the album name I passed as a parameter (as well as track number and name). It will also put the files in the folder passed as an argument (instead of putting them in the default `./splits` folder)
 
 ## Supported formats for the track list (`tracks.txt`)
