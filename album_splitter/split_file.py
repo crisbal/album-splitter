@@ -4,14 +4,15 @@ from .parse_tracks import Track
 
 import ffmpy
 
+from typing import List, Dict
 
-def split_file(input_file: Path, tracks: list[Track], destination: Path, output_format: str):
+def split_file(input_file: Path, tracks: List[Track], destination: Path, output_format: str):
     duration_command = ffmpy.FFprobe(
         inputs={input_file: '-show_entries format=duration -v quiet -of csv="p=0"'}
     )
     stdout, _ = duration_command.run(stdout=subprocess.PIPE)
     file_duration = float(stdout.decode().strip())
-    outputs: dict[Path, str] = {}
+    outputs: Dict[Path, str] = {}
     for i, track in enumerate(tracks):
         start_timestamp = track.start_timestamp
         end_timestamp = file_duration if i == len(tracks) - 1 else tracks[i + 1].start_timestamp
