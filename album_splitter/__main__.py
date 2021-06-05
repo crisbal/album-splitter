@@ -116,7 +116,7 @@ if __name__ == "__main__":
     if not tracks_file.exists():
         print(f"Can't find tracks file: {tracks_file}")
         exit(-1)
-    tracks_content = tracks_file.read_text()
+    tracks_content = tracks_file.read_text(encoding="utf-8", errors="ignore")
     tracks = parse_tracks(tracks_content, duration=args.duration)
 
     # build the id3-tags
