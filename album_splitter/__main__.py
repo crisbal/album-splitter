@@ -1,8 +1,6 @@
 import argparse
 from urllib.parse import parse_qs, urlparse
-from uuid import uuid4
 from pathlib import Path
-from collections import namedtuple
 import datetime
 
 from .parse_tracks import parse_tracks
@@ -172,7 +170,11 @@ if __name__ == "__main__":
     print("Splitting into files... (this could take a while)")
     output_files = split_file(input_file, tracks, outfolder, output_format=str(input_file).split(".")[-1])
     print("Tagging files, almost done...")
-    for file in output_files:
+    for index, file in enumerate(output_files):
+        track = tracks[index]
+        tag_data.update({
+            "title": str(track.title),
+            "tracknumber": index + 1
+        })
         tag_file(file, tag_data)
     print("Done!")
-
