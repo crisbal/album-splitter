@@ -20,7 +20,10 @@ def split_file(input_file: Path, tracks: List[Track], destination: Path, output_
             destination / (f"{track.title}.{output_format}")
         ] = f"-vn -c copy -ss {start_timestamp} -to {end_timestamp}"
     split_command = ffmpy.FFmpeg(
-        inputs={input_file: "-y -hide_banner -loglevel error -stats"}, outputs=outputs
+        inputs={
+            str(input_file): "-y -hide_banner -loglevel error -stats"}, 
+            outputs={ str(k): v for k, v in outputs.items()
+        }
     )
     try:
         split_command.run()

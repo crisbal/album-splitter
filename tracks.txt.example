@@ -1,9 +1,9 @@
-# ATTENTION: TO USE, ERASE THE LINES STARTING WITH #
-# This is an example file of how to write the tracks.txt file on your installation:
+# ATTENTION: This is an example file of how to write the tracks.txt file
 #
-# 1) Copy this file and name the copy: tracks.txt
-# 2) Erase any line starting with # from the tracks.txt (not from tracks.txt.example)
-# 3) Write or copy the track list in any of the following formats:
+# Lines starting with # are considered comments
+# 
+# 1) Create a tracks.txt
+# 2) Write or copy the track list in any of the following formats:
 #    - Dashes (-) can be omitted
 #    - Time can be writen in HH:MM:SS or MM:SS format.
 #    - If the list is numbered, tracks can be from 1 to 99 (at the moment)

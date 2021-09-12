@@ -116,6 +116,9 @@ if __name__ == "__main__":
         exit(-1)
     tracks_content = tracks_file.read_text(encoding="utf-8", errors="ignore")
     tracks = parse_tracks(tracks_content, duration=args.duration)
+    if not len(tracks):
+        print("No tracks could be read/parsed from the tracks file.")
+        exit(-1)
 
     # build the id3-tags
     tag_data = {}
