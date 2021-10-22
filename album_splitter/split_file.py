@@ -8,7 +8,7 @@ from typing import List, Dict
 
 def split_file(input_file: Path, tracks: List[Track], destination: Path, output_format: str):
     duration_command = ffmpy.FFprobe(
-        inputs={input_file: '-show_entries format=duration -v quiet -of csv="p=0"'}
+        inputs={str(input_file): '-show_entries format=duration -v quiet -of csv="p=0"'}
     )
     stdout, _ = duration_command.run(stdout=subprocess.PIPE)
     file_duration = float(stdout.decode().strip())
@@ -22,7 +22,7 @@ def split_file(input_file: Path, tracks: List[Track], destination: Path, output_
     split_command = ffmpy.FFmpeg(
         inputs={
             str(input_file): "-y -hide_banner -loglevel error -stats"}, 
-            outputs={ str(k): v for k, v in outputs.items()
+            outputs={ str(path): v for path, v in outputs.items()
         }
     )
     try:
