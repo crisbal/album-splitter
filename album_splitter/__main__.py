@@ -100,10 +100,10 @@ if __name__ == "__main__":
         if url_data.scheme == "":
             raise ValueError(f"Scheme (http, https) missing from provided URL")
 
-        if url_data.hostname == "youtube.com":
+        if (url_data.hostname or "").endswith("youtube.com"):
             query = parse_qs(url_data.query)
             yt_video_id = query["v"][0]
-        elif url_data.hostname == "youtu.be": 
+        elif (url_data.hostname or "").endswith("youtu.be"): 
             yt_video_id = url_data.path.replace("/", "")
         else:
             raise ValueError(f"Unknown YouTube url {args.youtube_url}. (Supported youtube.com, youtu.be)")
