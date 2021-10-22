@@ -94,6 +94,20 @@ if __name__ == "__main__":
     parser = get_parser()
     args = parser.parse_args()
 
+    yt_video_id = None
+    if args.youtube_url:
+        url_data = urlparse(args.youtube_url)
+        if url_data.scheme == "":
+            raise ValueError(f"Scheme (http, https) missing from provided URL")
+
+        if url_data.hostname == "youtube.com":
+            query = parse_qs(url_data.query)
+            yt_video_id = query["v"][0]
+        elif url_data.hostname == "youtu.be": 
+            yt_video_id = url_data.path.replace("/", "")
+        else:
+            raise ValueError(f"Unknown YouTube url {args.youtube_url}. (Supported youtube.com, youtu.be)")
+
     # infer default output folder
     if not args.folder:
         if args.album or args.artist:
@@ -102,10 +116,8 @@ if __name__ == "__main__":
                 args.folder = secure_filename(f"{args.artist} - {args.album}")
         else:
             if args.youtube_url:
-                url_data = urlparse(args.youtube_url)
-                query = parse_qs(url_data.query)
-                video_id = query["v"][0]
-                args.folder = "./splits/{}".format(secure_filename(video_id))
+                assert yt_video_id
+                args.folder = "./splits/{}".format(secure_filename(yt_video_id))
             else:
                 args.folder = "./splits/{}".format(secure_filename(args.audio_file))
 
@@ -149,10 +161,8 @@ if __name__ == "__main__":
     if args.audio_file:
         input_file = Path(args.audio_file)
     elif args.youtube_url:
-        url_data = urlparse(args.youtube_url)
-        query = parse_qs(url_data.query)
-        video_id = query["v"][0]
-        input_file = Path(video_id + ".wav")
+        assert yt_video_id
+        input_file = Path(yt_video_id + ".wav")
         if not input_file.exists():
             print("Downloading video from YouTube")
             with YoutubeDL(ydl_opts) as ydl:
