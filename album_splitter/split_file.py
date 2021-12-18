@@ -12,11 +12,12 @@ def split_file(input_file: Path, tracks: List[Track], destination: Path, output_
     )
     stdout, _ = duration_command.run(stdout=subprocess.PIPE)
     file_duration = float(stdout.decode().strip())
-    outputs: Dict[Path, str] = {}
+    outputs: List[str] = []
     for i, track in enumerate(tracks):
         start_timestamp = track.start_timestamp
         end_timestamp = file_duration if i == len(tracks) - 1 else tracks[i + 1].start_timestamp
         output_file = destination / (f"{track.title}.{output_format}")
+        outputs.append(output_file)
             
         split_command = ffmpy.FFmpeg(
             inputs={str(input_file): f"-y -hide_banner -loglevel error -stats -ss {start_timestamp} -t {end_timestamp}"},
@@ -27,4 +28,4 @@ def split_file(input_file: Path, tracks: List[Track], destination: Path, output_
         except:
             raise Exception("Something went wrong with the splitting procedure. See the error above.") from None
 
-    return list(outputs.keys())
+    return outputs
