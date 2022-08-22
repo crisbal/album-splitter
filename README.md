@@ -9,10 +9,10 @@ This script is for you!
 + Install `ffmpeg`
 + Install ```Python 3```
 + Clone/Download this repository
-+ `cd album-splitter/` 
++ `cd album-splitter/`
     * Use `ls` (or `dir` on Windows) to check that you are in a folder containing a `README.md`
 + `python -m venv venv`
-+ Activate the virtual environment 
++ Activate the virtual environment
   * Linux: `source venv/bin/activate`
   * Windows: `./venv/Scripts/activate`
   * You will need to do this step everytime you want to use the software
@@ -52,13 +52,19 @@ This script is for you!
 + Wait for the splitting process to complete
 + You will find your tracks in the `./splits` folder
 
+## Output Format
+
+The format of the output tracks is the same as the format of the input (same extension, same codec, same bitrate, ...), it simply does a copy of the codec. If you want to convert the output tracks to a different format, you can do this using additional tools.
+
+For example to convert from `.wav` to `.mp3` you can use FFmpeg. [Here](https://stackoverflow.com/a/41207442) is how you can do it on Linux/macOS. [This](https://sourceforge.net/projects/ffmpeg-batch/) or [this](https://stackoverflow.com/a/56244203) might help for Windows instead. You can adopt such snippets to do other processing, such as changing bitrate.
+
 ## Examples
 
 ### Downloading and splitting an album from YouTube
 
 + This is the album I want to download and split: `https://www.youtube.com/watch?v=p_uqD4ng9hw`
 + I find the tracklist in the comments and I copy that in `tracks.txt`, eventually adjusting it to a supported format for the tracklist
-+ 
++
 ```
 00:06 - When I Was Young
 ...
@@ -108,5 +114,3 @@ If you want to improve the code and submit a pull request feel free to do so.
 ## License
 
 GPL v3
-
-
