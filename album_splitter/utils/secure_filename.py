@@ -1,6 +1,7 @@
-import unicodedata
 import os
 import re
+import unicodedata
+
 
 # Taken and adapted from https://github.com/pallets/werkzeug/blob/e6c908f36c68eff4ecc10c405d8c2512f27e65a0/src/werkzeug/utils.py#L432
 def secure_filename(filename: str) -> str:

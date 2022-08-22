@@ -15,7 +15,9 @@ class YdlLogger(object):
 def ydl_hook(d):
     if d["status"] == "downloading":
         sys.stdout.write("\r\033[K")
-        sys.stdout.write("\tDownloading video... | ETA: {} seconds".format(str(d["eta"])))
+        sys.stdout.write(
+            "\tDownloading video... | ETA: {} seconds".format(str(d["eta"]))
+        )
         sys.stdout.flush()
     elif d["status"] == "finished":
         sys.stdout.write("\r\033[K")

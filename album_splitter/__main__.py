@@ -1,15 +1,15 @@
 import argparse
-from urllib.parse import parse_qs, urlparse
-from pathlib import Path
 import datetime
-
-from .parse_tracks import parse_tracks
-from .tag_file import tag_file
-from .split_file import split_file
-from .utils.secure_filename import secure_filename
-from .utils.ytdl_interface import ydl_opts
+from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from youtube_dl import YoutubeDL
+
+from .parse_tracks import parse_tracks
+from .split_file import split_file
+from .tag_file import tag_file
+from .utils.secure_filename import secure_filename
+from .utils.ytdl_interface import ydl_opts
 
 
 def get_parser():
@@ -20,7 +20,9 @@ def get_parser():
 
     input_group = parser.add_argument_group("Input")
     input_file_group = input_group.add_mutually_exclusive_group(required=True)
-    input_file_group.add_argument("-f", "--file", help="The file you want to split.", dest="audio_file")
+    input_file_group.add_argument(
+        "-f", "--file", help="The file you want to split.", dest="audio_file"
+    )
     input_file_group.add_argument(
         "-yt",
         "--youtube",
@@ -103,10 +105,12 @@ if __name__ == "__main__":
         if (url_data.hostname or "").endswith("youtube.com"):
             query = parse_qs(url_data.query)
             yt_video_id = query["v"][0]
-        elif (url_data.hostname or "").endswith("youtu.be"): 
+        elif (url_data.hostname or "").endswith("youtu.be"):
             yt_video_id = url_data.path.replace("/", "")
         else:
-            raise ValueError(f"Unknown YouTube url {args.youtube_url}. (Supported youtube.com, youtu.be)")
+            raise ValueError(
+                f"Unknown YouTube url {args.youtube_url}. (Supported youtube.com, youtu.be)"
+            )
 
     # infer default output folder
     if not args.folder:
@@ -181,13 +185,12 @@ if __name__ == "__main__":
 
     # do the work
     print("Splitting into files... (this could take a while)")
-    output_files = split_file(input_file, tracks, outfolder, output_format=str(input_file).split(".")[-1])
+    output_files = split_file(
+        input_file, tracks, outfolder, output_format=str(input_file).split(".")[-1]
+    )
     print("Tagging files, almost done...")
     for index, file in enumerate(output_files):
         track = tracks[index]
-        tag_data.update({
-            "title": str(track.title),
-            "tracknumber": index + 1
-        })
+        tag_data.update({"title": str(track.title), "tracknumber": index + 1})
         tag_file(file, tag_data)
     print("Done!")

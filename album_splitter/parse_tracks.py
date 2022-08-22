@@ -1,5 +1,5 @@
-from collections import namedtuple
 import re
+from collections import namedtuple
 
 Track = namedtuple("Track", ["title", "start_timestamp"])
 
