@@ -20,4 +20,4 @@ jobs:
             - name: Run album-splitter
               run: |
                   printf "00:06 When I Was Young\n03:35 Dogs Eating Dogs\n07:05 Disaster\n10:48 Boxing Day\n14:48 Pretty Little Girl" > tracks.txt
-                  python -m album-splitter -yt "https://www.youtube.com/watch?v=p_uqD4ng9hw"
+                  python -m album_splitter -yt "https://www.youtube.com/watch?v=p_uqD4ng9hw"
