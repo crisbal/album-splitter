@@ -16,13 +16,16 @@ def split_file(
     stdout, _ = duration_command.run(stdout=subprocess.PIPE)
     file_duration = float(stdout.decode().strip())
     outputs: Dict[Path, str] = {}
+
+    max_zero_padding = len(str(len(tracks)))
     for i, track in enumerate(tracks):
         start_timestamp = track.start_timestamp
         end_timestamp = (
             file_duration if i == len(tracks) - 1 else tracks[i + 1].start_timestamp
         )
         outputs[
-            destination / (f"{track.title}.{output_format}")
+            destination
+            / (f"{str(i+1).zfill(max_zero_padding)} {track.title}.{output_format}")
         ] = f"-vn -c copy -ss {start_timestamp} -to {end_timestamp}"
     split_command = ffmpy.FFmpeg(
         inputs={str(input_file): "-y -hide_banner -loglevel error -stats"},
