@@ -1,5 +1,9 @@
 name: album-splitter CI
-on: [push, pull_request]
+on:
+    push:
+    pull_request:
+    schedule:
+      - cron: "0 5 * * *"
 jobs:
     pre-commit:
         runs-on: ubuntu-latest
