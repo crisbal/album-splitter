@@ -3,7 +3,7 @@ import datetime
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
-from youtube_dl import YoutubeDL
+from yt_dlp import YoutubeDL
 
 from .parse_tracks import parse_tracks
 from .split_file import split_file
