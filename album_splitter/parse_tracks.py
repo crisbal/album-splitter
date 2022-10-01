@@ -40,8 +40,8 @@ def parse_line(line: str) -> typing.Tuple[str, str]:
     line = line.strip()
     # match [HHH:]MM:SS
     timestamp_regex = r"(?:\d+:)?(?:0[0-9]|[1-5][0-9]):(?:0[0-9]|[1-5][0-9])"
-    timestamp_regex_beginning = fr"^{timestamp_regex}\b"
-    timestamp_regex_end = fr"\b{timestamp_regex}$"
+    timestamp_regex_beginning = rf"^{timestamp_regex}\b"
+    timestamp_regex_end = rf"\b{timestamp_regex}$"
     match_beginning = re.search(timestamp_regex_beginning, line)
     match_end = re.search(timestamp_regex_end, line)
     if match_beginning:
@@ -51,6 +51,8 @@ def parse_line(line: str) -> typing.Tuple[str, str]:
         timestamp = match_end.group(0)
         title = re.sub(timestamp_regex_end, "", line)
     else:
-        raise ValueError(f"Can't find a valid timestamp (HH:MM:SS or MM:SS) at the beginning or at the end of line: {line}")
+        raise ValueError(
+            f"Can't find a valid timestamp (HH:MM:SS or MM:SS) at the beginning or at the end of line: {line}"
+        )
     title = title.strip(" -|")
     return timestamp, title

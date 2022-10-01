@@ -2,6 +2,7 @@ from album_splitter.parse_tracks import parse_line
 
 import pytest
 
+
 @pytest.mark.parametrize(
     ["input", "expected"],
     [
@@ -17,7 +18,7 @@ import pytest
         ["$P&C!AL'' ろみチ 01:23:45", ("01:23:45", "$P&C!AL'' ろみチ")],
         # Underisable but we accept it for now
         ["01. 99 Red Baloons 11:22", ("11:22", "01. 99 Red Baloons")],
-    ]
+    ],
 )
 def test_parse_line(input, expected):
     if expected == ValueError:
