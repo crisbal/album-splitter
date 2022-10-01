@@ -10,22 +10,46 @@ def secure_filename(filename: str) -> str:
     to :func:`os.path.join`.  The filename returned is an ASCII only string
     for maximum portability.
     >>> secure_filename("My cool movie.mov")
-    'My cool movie.mov'
+    'My_cool_movie.mov'
     >>> secure_filename("../../../etc/passwd")
     'etc_passwd'
     >>> secure_filename('i contain cool \xfcml\xe4uts.txt')
-    'i contain cool umlauts.txt'
+    'i_contain_cool_umlauts.txt'
+
     The function might return an empty filename.  It's your responsibility
     to ensure that the filename is unique and that you abort or
     generate a random filename if the function returned an empty one.
     """
-    _filename_ascii_strip_re = re.compile(r"[^A-Za-z0-9_.-]")
     filename = unicodedata.normalize("NFKD", filename)
     filename = filename.encode("ascii", "ignore").decode("ascii")
-
     for sep in os.path.sep, os.path.altsep:
         if sep:
             filename = filename.replace(sep, " ")
-    filename = str(_filename_ascii_strip_re.sub("", filename)).strip("._")
+    _filename_ascii_strip_re = re.compile(r"[^A-Za-z0-9_.-]")
+    filename = str(_filename_ascii_strip_re.sub("", "_".join(filename.split()))).strip(
+        "._"
+    )
+    # on nt a couple of special files are present in each folder.  We
+    # have to ensure that the target file is not such a filename.  In
+    # this case we prepend an underline
+    _windows_device_files = (
+        "CON",
+        "AUX",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "PRN",
+        "NUL",
+    )
+    if (
+        os.name == "nt"
+        and filename
+        and filename.split(".")[0].upper() in _windows_device_files
+    ):
+        filename = f"_{filename}"
 
     return filename
