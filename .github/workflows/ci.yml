@@ -33,3 +33,23 @@ jobs:
               run: |
                   printf "00:06 When I Was Young\n03:35 Dogs Eating Dogs\n07:05 Disaster\n10:48 Boxing Day\n14:48 Pretty Little Girl" > tracks.txt
                   python -m album_splitter -yt "https://www.youtube.com/watch?v=p_uqD4ng9hw"
+
+    test:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                python-version: ["3.7", "3.8", "3.9", "3.10"]
+        steps:
+            - uses: actions/checkout@v3
+            - name: Install system dependencies
+              run: sudo apt-get install -y ffmpeg
+            - name: Set up Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v4
+              with:
+                  python-version: ${{ matrix.python-version }}
+            - name: Install package
+              run: |
+                  python -m pip install --upgrade pip
+                  python -m pip install .[test]
+            - name: Run pytest
+              run: python -m pytest --doctest-modules

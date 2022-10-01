@@ -22,9 +22,9 @@ This script is for you!
 
 ## Quick guide (from a local album)
 
-+ Create a copy of the tracks.txt.example, rename it as tracks.txt and
++ Create a copy of the `tracks.txt.example`, rename it as `tracks.txt` and
    delete the lines starting with #.
-+ Open tracks.txt
++ Open `tracks.txt`
 + Add tracks info in this format:
     * `<start-time> - <title>`
     * A track on each line
@@ -39,9 +39,9 @@ This script is for you!
 
 + Copy the YouTube URL of the album you want to download and split
 + Find in the YouTube comments the tracklist with start-time and title
-+ Create a copy of the tracks.txt.example, rename it as tracks.txt and
++ Create a copy of the `tracks.txt.example`, rename it as `tracks.txt` and
    delete the lines starting with #.
-+ Open tracks.txt
++ Open `tracks.txt`
 + Copy the tracklist in the file, adjusting for the supported formats
     * `<start-time> - <title>`
     * A track on each line
@@ -89,13 +89,11 @@ These songs are already mp3-tagged with their track name and track number, but n
 
 ## Supported formats for the track list (`tracks.txt`)
 
-These are just some examples.
+These are just some examples, find more in `tracks.txt.example`.
 
 * `[hh:]mm:ss - Title`
 * `Title - [hh:]mm:ss`
 * `Title [hh:]mm:ss`
-* `N. Title [hh:]mm:ss`
-* `N - Title [hh:]mm:ss`
 
 To just see which data would be extracted from the tracklist use the option `--dry-run`.
 
