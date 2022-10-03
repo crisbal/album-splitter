@@ -1,6 +1,44 @@
 [build-system]
 requires = [
-    "setuptools>=42",
-    "wheel"
+    "setuptools>=61",
+    "setuptools-scm",
 ]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages]
+find = {namespaces = false}
+
+[tool.setuptools_scm]
+
+[project]
+name = "album-splitter"
+description = "Split single-file MP3 albums into separate tracks. Download from YouTube supported."
+readme = "README.md"
+authors = [
+    {name = "Cristian Baldi", email = "bld.cris.96@gmail.com"},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Topic :: Multimedia :: Sound/Audio",
+]
+requires-python = ">=3.7"
+dependencies = [
+    'ffmpy',
+    'music_tag',
+    "yt-dlp",
+]
+dynamic = ["version"]
+
+[project.urls]
+homepage = "https://github.com/crisbal/album-splitter/"
+documentation = "https://github.com/crisbal/album-splitter/README.md"
+repository = "https://github.com/crisbal/album-splitter/"
+tracker = "https://github.com/crisbal/album-splitter/issues"
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+album-splitter = "album_splitter:__main__"
