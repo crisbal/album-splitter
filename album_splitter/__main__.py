@@ -92,7 +92,7 @@ def get_parser():
     return parser
 
 
-if __name__ == "__main__":
+def main():
     parser = get_parser()
     args = parser.parse_args()
 
@@ -194,3 +194,7 @@ if __name__ == "__main__":
         tag_data.update({"title": str(track.title), "tracknumber": index + 1})
         tag_file(file, tag_data)
     print(f"Done! You can find your tracks in {outfolder}")
+
+
+if __name__ == "__main__":
+    main()
