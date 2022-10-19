@@ -32,10 +32,10 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-homepage = "https://github.com/crisbal/album-splitter/"
-documentation = "https://github.com/crisbal/album-splitter/README.md"
-repository = "https://github.com/crisbal/album-splitter/"
-tracker = "https://github.com/crisbal/album-splitter/issues"
+Homepage = "https://github.com/crisbal/album-splitter/"
+Documentation = "https://github.com/crisbal/album-splitter/README.md"
+Repository = "https://github.com/crisbal/album-splitter/"
+Tracker = "https://github.com/crisbal/album-splitter/issues"
 
 [project.optional-dependencies]
 test = ["pytest"]
