@@ -28,23 +28,21 @@ First time only:
     * Linux: `apt install python3` (or equivalent)
     * Windows: [Official webiste](https://www.python.org/)
     * MacOS: You should have it already installed
-+ Clone/Download this repository
-    * [Click here](https://github.com/crisbal/album-splitter/archive/refs/heads/master.zip) to download it as a ZIP and extract it
-    * Or use `git clone https://github.com/crisbal/album-splitter/`
-+ Open your terminal app and navigate to where you have extracted/cloned the `album-splitter` project
-    * For example: `cd Downloads/album-splitter`
-    * Use `ls` (or `dir` on Windows) to check that you are in a folder containing a `README.md`
-+ Create a virtual environment: `python3 -m venv venv`
++ Open your terminal app
++ Create a virtual environment
+    * `python3 -m venv venv`
 + Activate the virtual environment
   * Linux/MacOS: `source venv/bin/activate`
   * Windows: `./venv/Scripts/activate`
-+ Install the package
-    * `python3 -m pip install .`
++ Install album-splitter
+    * `python3 -m pip install album-splitter`
 + You are ready to go!
 
 After the first time:
 
-+ Open your terminal app and navigate to where you have extracted/cloned the `album-splitter` project
++ Open your terminal app
++ Optional, update album-splitter:
+    * `python3 -m pip install --upgrade album-splitter`
 + Activate the virtual environment
   * Linux/MacOS: `source venv/bin/activate`
   * Windows: `./venv/Scripts/activate`
@@ -132,6 +130,10 @@ To get the full help and all the available options run `python -m album_splitter
 ## Need help?
 
 If you need any help just [create an Issue](https://github.com/crisbal/album-splitter/issues) or send me an email at the address you can find on my profile.
+
+## Updating
+
+To update to use the latest version of album-splitter you can use `python3 -m pip install --upgrade album-splitter`
 
 ## Want to help?
 
