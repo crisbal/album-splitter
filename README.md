@@ -1,6 +1,12 @@
+
 # album-splitter
 
+
 Use **album-splitter** to automatically split any audio file (youtube videos, albums, podcasts, audiobooks, tapes, vinyls) into separate tracks starting from timestamps. album-splitter will also take care of tagging each part with the correct metadata. If your file is on YouTube, you can download it automatically.
+
+<p align="center">
+    <img src='.github/readme/hero.png' width='500px'>
+</p>
 
 Common use cases covered:
 
