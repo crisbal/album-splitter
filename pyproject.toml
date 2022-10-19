@@ -41,4 +41,4 @@ tracker = "https://github.com/crisbal/album-splitter/issues"
 test = ["pytest"]
 
 [project.scripts]
-album-splitter = "album_splitter:__main__"
+album-splitter = "album_splitter.__main__:main"
