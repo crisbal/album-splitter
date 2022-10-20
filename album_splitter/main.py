@@ -1,0 +1,213 @@
+import argparse
+import datetime
+import typing
+from pathlib import Path
+from urllib.parse import parse_qs, urlparse
+
+from yt_dlp import YoutubeDL
+
+from .parse_tracks import parse_tracks
+from .split_file import split_file
+from .tag_file import tag_file
+from .utils.secure_filename import secure_filename
+from .utils.ytdl_interface import ydl_opts
+
+
+def get_parser():
+    parser = argparse.ArgumentParser(
+        prog="album-splitter",
+        description="Split a single-file mp3 Album into its tracks.",
+    )
+
+    input_group = parser.add_argument_group("Input")
+    input_file_group = input_group.add_mutually_exclusive_group(required=True)
+    input_file_group.add_argument(
+        "-f", "--file", help="The file you want to split.", dest="audio_file"
+    )
+    input_file_group.add_argument(
+        "-yt",
+        "--youtube",
+        help="The YouTube video url you want to download and split.",
+        dest="youtube_url",
+    )
+
+    input_group.add_argument(
+        "-t",
+        "--tracks",
+        help="Specify the tracks file. (default: %(default)s)",
+        default="tracks.txt",
+    )
+    input_group.add_argument(
+        "-d",
+        "--duration",
+        action="store_true",
+        help="Tracks file format is in duration mode, as opposed to timestamp mode. (default: %(default)s)",
+        default=False,
+    )
+
+    tracks_metadata_group = parser.add_argument_group("Tracks Metadata")
+    tracks_metadata_group.add_argument(
+        "-a",
+        "--artist",
+        help="The artist that the ouput will be tagged with. (default: %(default)s)",
+        default=None,
+    )
+    tracks_metadata_group.add_argument(
+        "-A",
+        "--album",
+        help="The album that the ouput will be tagged with. (default: %(default)s)",
+        default=None,
+    )
+    tracks_metadata_group.add_argument(
+        "-y",
+        "--year",
+        help="The year that the ouput will be tagged with. (default: %(default)s)",
+        default=None,
+    )
+    tracks_metadata_group.add_argument(
+        "-md",
+        "--metadata",
+        dest="extra_metadata",
+        help="Extra tags for the output. `key=value` format. (default: %(default)s)",
+        action="append",
+    )
+
+    output_group = parser.add_argument_group("Output")
+    output_group.add_argument(
+        "-o",
+        "--output",
+        help="Specify the base output folder. (default: splits/)",
+        metavar="FOLDER",
+        dest="folder",
+        default=None,
+    )
+
+    other_group = parser.add_argument_group("Other")
+    other_group.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Don't split the file, just output the tracks. (default: %(default)s)",
+        default=False,
+    )
+
+    return parser
+
+
+def get_youtube_video_id(youtube_url: str) -> str:
+    """
+    Extract the video id from a YouTube URL
+
+    >>> get_youtube_video_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+    'dQw4w9WgXcQ'
+    """
+    url_data = urlparse(youtube_url)
+    if url_data.scheme == "":
+        raise ValueError(f"Scheme (http, https) missing from provided URL")
+    if (url_data.hostname or "").endswith("youtube.com"):
+        query = parse_qs(url_data.query)
+        yt_video_id = query["v"][0]
+    elif (url_data.hostname or "").endswith("youtu.be"):
+        yt_video_id = url_data.path.replace("/", "")
+    else:
+        raise ValueError(
+            f"Unknown YouTube url {youtube_url}. (Supported youtube.com, youtu.be)"
+        )
+    return yt_video_id
+
+
+def get_output_folder(
+    album: typing.Optional[str], artist: typing.Optional[str], file_id: str
+) -> Path:
+    if album and artist:
+        folder = secure_filename(f"{artist} - {album}")
+    elif album or artist:
+        folder = secure_filename(album or artist)
+    else:
+        folder = "./splits/{}".format(secure_filename(file_id))
+    return Path(folder)
+
+
+def main() -> int:
+    parser = get_parser()
+    args = parser.parse_args()
+
+    yt_video_id = None
+    if args.youtube_url:
+        yt_video_id = get_youtube_video_id(args.youtube_url)
+
+    if args.folder:
+        outfolder = Path(args.folder)
+    else:
+        outfolder = get_output_folder(
+            args.album, args.artist, yt_video_id or args.audio_file
+        )
+
+    print("Reading tracks file")
+    tracks_file = Path(args.tracks)
+    if not tracks_file.exists():
+        print(f"Can't find tracks file: {tracks_file}")
+        return 1
+    tracks_content = tracks_file.read_text(encoding="utf-8", errors="ignore")
+    tracks = parse_tracks(tracks_content, duration=args.duration)
+    if not len(tracks):
+        print("No tracks could be read/parsed from the tracks file.")
+        return 1
+
+    # build the id3-tags
+    tag_data = {}
+    tag_data.update(
+        {
+            "artist": args.artist,
+            "album": args.album,
+            "year": args.year,
+        }
+    )
+    for tag_data_line in args.extra_metadata or []:
+        k, v = tag_data_line.split("=")
+        tag_data[k] = v.replace('"', "").replace("'", "")
+
+    if args.dry_run:
+        for track in tracks:
+            fmt_timestamp = datetime.timedelta(seconds=track.start_timestamp)
+            print(f"{track.title} - {fmt_timestamp}")
+        for k, v in tag_data.items():
+            print(f"{k} - {v}")
+        return 0
+    else:
+        print("Found the following tracks: ")
+        for track in tracks:
+            fmt_timestamp = datetime.timedelta(seconds=track.start_timestamp)
+            print(f"\t{track.title} - {fmt_timestamp}")
+    input_file = None
+    if args.audio_file:
+        input_file = Path(args.audio_file)
+    elif args.youtube_url:
+        assert yt_video_id
+        input_file = Path(yt_video_id + ".wav")
+        if not input_file.exists():
+            print("Downloading video from YouTube")
+            with YoutubeDL(ydl_opts) as ydl:
+                ydl.download([args.youtube_url])
+            print("\nConversion complete")
+        else:
+            print("Found matching file locally, no need to redownload from YouTube")
+
+    if not input_file or not input_file.exists():
+        print(f"Can't find input file: {input_file}")
+        return 1
+
+    # create output folder
+    outfolder.mkdir(parents=True, exist_ok=True)
+
+    # do the work
+    print("Splitting into files... (this could take a while)")
+    output_files = split_file(
+        input_file, tracks, outfolder, output_format=str(input_file).split(".")[-1]
+    )
+    print("Tagging files, almost done...")
+    for index, file in enumerate(output_files):
+        track = tracks[index]
+        tag_data.update({"title": str(track.title), "tracknumber": index + 1})
+        tag_file(file, tag_data)
+    print(f"Done! You can find your tracks in {outfolder}")
+    return 0
