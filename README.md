@@ -47,11 +47,11 @@ First time only:
 After the first time:
 
 + Open your terminal app
-+ Optional, update album-splitter:
-    * `python3 -m pip install --upgrade album-splitter`
 + Activate the virtual environment
   * Linux/MacOS: `source venv/bin/activate`
   * Windows: `./venv/Scripts/activate`
++ Optional, update `album-splitter`:
+    * `python3 -m pip install --upgrade album-splitter`
 + You are ready to go!
 
 ## Quick guide (from a local album)
