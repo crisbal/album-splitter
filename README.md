@@ -148,3 +148,8 @@ If you want to improve the code and submit a pull request, please feel free to d
 ## License
 
 GPL v3
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=crisbal/album-splitter&type=Date)](https://star-history.com/#crisbal/album-splitter&Date)
+
