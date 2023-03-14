@@ -1,6 +1,4 @@
-
 # album-splitter
-
 
 Use **album-splitter** to automatically split any audio file (youtube videos, albums, podcasts, audiobooks, tapes, vinyls) into separate tracks starting from timestamps. album-splitter will also take care of tagging each part with the correct metadata. If your file is on YouTube, you can download it automatically.
 
@@ -152,4 +150,3 @@ GPL v3
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=crisbal/album-splitter&type=Date)](https://star-history.com/#crisbal/album-splitter&Date)
-
