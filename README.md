@@ -31,7 +31,7 @@ First time only:
 + Install `Python 3` (a version newer or equal to `3.7` is required)
     * Linux: `apt install python3` (or equivalent)
     * Windows: [Official webiste](https://www.python.org/)
-    * MacOS: You should have it already installed
+    * MacOS: You should have it already installed or `brew install python3`
 + Open your terminal app
 + Create a virtual environment
     * `python3 -m venv venv`
