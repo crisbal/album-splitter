@@ -4,3 +4,4 @@ pydub
 urlparse3
 PyQt5>=5.6
 sip
+yt_dlp

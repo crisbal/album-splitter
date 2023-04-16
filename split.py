@@ -11,7 +11,7 @@ from urllib.parse import urlparse, parse_qs
 
 # from pydub import exceptions as pydub_excpetions
 from pydub import AudioSegment
-from youtube_dl import YoutubeDL
+from yt_dlp import YoutubeDL
 
 from split_init import METADATA_PROVIDERS, ydl_opts
 from utils import (split_song, time_to_seconds,
