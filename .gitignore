@@ -1,6 +1,7 @@
 venv/
 *.pyc
 *.mp3
+*.m4a
 *.wav
 splits/
 __pycache__/
@@ -10,3 +11,4 @@ build/
 dist/
 ./split
 ./split.exe
+*.txt
