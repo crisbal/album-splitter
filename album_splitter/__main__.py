@@ -5,7 +5,7 @@ from urllib.parse import parse_qs, urlparse
 
 from yt_dlp import YoutubeDL
 
-from .parse_tracks import parse_tracks
+from .parse_tracks import parse_tracks, get_tracks_from_tags
 from .split_file import split_file
 from .tag_file import tag_file
 from .utils.secure_filename import secure_filename
@@ -126,12 +126,17 @@ def main():
                 args.folder = "./splits/{}".format(secure_filename(args.audio_file))
 
     print("Reading tracks file")
-    tracks_file = Path(args.tracks)
-    if not tracks_file.exists():
-        print(f"Can't find tracks file: {tracks_file}")
-        exit(-1)
-    tracks_content = tracks_file.read_text(encoding="utf-8", errors="ignore")
-    tracks = parse_tracks(tracks_content, duration=args.duration)
+    tracks_file = args.tracks
+    if not tracks_file or not Path(tracks_file).exists():
+        try:
+            tracks = get_tracks_from_tags(args.audio_file)
+        except Exception as e:
+            print(f"Can't find tracks file: {tracks_file}, and could not extract tracks from tags")
+            exit(-1)
+    else:
+        tracks_file = Path(tracks_file)
+        tracks_content = tracks_file.read_text(encoding="utf-8", errors="ignore")
+        tracks = parse_tracks(tracks_content, duration=args.duration)
     if not len(tracks):
         print("No tracks could be read/parsed from the tracks file.")
         exit(-1)

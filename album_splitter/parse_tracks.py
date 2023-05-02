@@ -1,5 +1,7 @@
+import math
 import re
 from collections import namedtuple
+import eyed3
 
 import typing
 
@@ -56,3 +58,15 @@ def parse_line(line: str) -> typing.Tuple[str, str]:
         )
     title = title.strip(" -|")
     return timestamp, title
+
+def get_tracks_from_tags(audio_file):
+    audio = eyed3.load(audio_file)
+    chapters = audio.tag.chapters
+    tracks = []
+    for chapter in chapters:
+        title = chapter.title
+        times_ms = chapter.times
+        start_ms = times_ms[0]
+        start_seconds =int(math.floor(start_ms / 1000))
+        tracks.append(Track(title=title, start_timestamp=start_seconds))
+    return tracks
