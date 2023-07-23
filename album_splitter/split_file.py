@@ -6,7 +6,6 @@ import ffmpy
 
 from .parse_tracks import Track
 
-
 def split_file(
     input_file: Path, tracks: List[Track], destination: Path, output_format: str
 ):
@@ -24,8 +23,7 @@ def split_file(
             file_duration if i == len(tracks) - 1 else tracks[i + 1].start_timestamp
         )
         outputs[
-            destination
-            / (f"{str(i+1).zfill(max_zero_padding)} {track.title}.{output_format}")
+            destination / f"{str(i+1).zfill(max_zero_padding)} {track.title}.{output_format}"
         ] = f"-vn -c copy -ss {start_timestamp} -to {end_timestamp}"
     split_command = ffmpy.FFmpeg(
         inputs={str(input_file): "-y -hide_banner -loglevel error -stats"},
