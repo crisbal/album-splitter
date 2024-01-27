@@ -1,3 +1,4 @@
+import json
 import argparse
 import datetime
 from pathlib import Path
@@ -5,7 +6,7 @@ from urllib.parse import parse_qs, urlparse
 
 from yt_dlp import YoutubeDL
 
-from .parse_tracks import parse_tracks
+from .parse_tracks import parse_tracks_txt, parse_tracks_json
 from .split_file import split_file
 from .tag_file import tag_file
 from .utils.secure_filename import secure_filename
@@ -130,8 +131,19 @@ def main():
     if not tracks_file.exists():
         print(f"Can't find tracks file: {tracks_file}")
         exit(-1)
-    tracks_content = tracks_file.read_text(encoding="utf-8", errors="ignore")
-    tracks = parse_tracks(tracks_content, duration=args.duration)
+    if tracks_file.extension == ".json":
+        with open(tracks_file, "r") as f:
+            tracks = parse_tracks_json(json.load(f), duration=args.duration)
+    elif tracks_file.extension == ".txt":
+        tracks_content = tracks_file.read_text(
+            encoding="utf-8", errors="ignore"
+        )
+        tracks = parse_tracks_txt(tracks_content, duration=args.duration)
+    else:
+        print(
+            f"Unsupported tracks file format: {tracks_file.extension}. Supported formats: .json, .txt"
+        )
+        exit(-1)
     if not len(tracks):
         print("No tracks could be read/parsed from the tracks file.")
         exit(-1)

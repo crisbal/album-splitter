@@ -18,24 +18,6 @@ def parse_time_string(time: str):
     return seconds
 
 
-def parse_tracks(tracks_content: str, duration: bool = False) -> typing.List[Track]:
-    lines = tracks_content.splitlines()
-    tracks: typing.List[Track] = []
-    current_time = 0
-    for line in lines:
-        line = line.strip()
-        if line.startswith("#") or len(line) == 0:
-            continue
-        track_time, title = parse_line(line)
-        track_time_seconds = parse_time_string(track_time)
-        if not duration:
-            current_time = track_time_seconds
-        tracks.append(Track(title=title, start_timestamp=current_time))
-        if duration:
-            current_time += track_time_seconds
-    return tracks
-
-
 def parse_line(line: str) -> typing.Tuple[str, str]:
     line = line.strip()
     # match [HHH:]MM:SS
@@ -56,3 +38,40 @@ def parse_line(line: str) -> typing.Tuple[str, str]:
         )
     title = title.strip(" -|")
     return timestamp, title
+
+
+def parse_tracks_txt(
+    tracks_content: str, duration: bool = False
+) -> typing.List[Track]:
+    lines = tracks_content.splitlines()
+    tracks: typing.List[Track] = []
+    current_time = 0
+    for line in lines:
+        line = line.strip()
+        if line.startswith("#") or len(line) == 0:
+            continue
+        track_time, title = parse_line(line)
+        track_time_seconds = parse_time_string(track_time)
+        if not duration:
+            current_time = track_time_seconds
+        tracks.append(Track(title=title, start_timestamp=current_time))
+        if duration:
+            current_time += track_time_seconds
+    return tracks
+
+
+def parse_tracks_json(
+    tracks_content: dict, duration: bool = False
+) -> typing.List[Track]:
+    tracks: typing.List[Track] = []
+    current_time = 0
+    for track in tracks_content:
+        title = track["title"]
+        track_time = track["start_time"]
+        track_time_seconds = parse_time_string(track_time)
+        if not duration:
+            current_time = track_time_seconds
+        tracks.append(Track(title=title, start_timestamp=current_time))
+        if duration:
+            current_time += track_time_seconds
+    return tracks
