@@ -116,6 +116,7 @@ These songs are already mp3-tagged with their track name and track number, but n
 + I set the tracklist in `tracks.txt` (same tracks as before)
 + I execute `python -m album_splitter --file DogsEatingDogsAlbum.mp3 --album "Dogs Eating Gods" --artist "blink-182" --folder "2012 - Dogs Eating Dogs"`
 + The software will execute, it will split the album, and mp3-tag each track with the author and the album name I passed as a parameter (as well as track number and name). It will also put the files in the folder passed as an argument (instead of putting them in the default `./splits` folder)
++ To add an image you have saved locally as album artwork to the tracks, add the option `--artwork "./path/to/artwork.jpeg"`.
 
 ## Supported formats for the track list (`tracks.txt`)
 

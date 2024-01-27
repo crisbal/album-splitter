@@ -64,6 +64,11 @@ def get_parser():
         default=None,
     )
     tracks_metadata_group.add_argument(
+        "--artwork",
+        help="Path to an image that will be used as the album artwork. (default: %(default)s)",
+        default=None,
+    )
+    tracks_metadata_group.add_argument(
         "-md",
         "--metadata",
         dest="extra_metadata",
@@ -143,6 +148,7 @@ def main():
             "artist": args.artist,
             "album": args.album,
             "year": args.year,
+            "artwork": args.artwork,
         }
     )
     for tag_data_line in args.extra_metadata or []:
