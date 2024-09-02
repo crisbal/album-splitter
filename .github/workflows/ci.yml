@@ -37,6 +37,7 @@ jobs:
 
 
     smoke-test:
+        if: false # YouTube has banned GitHub Actions IP range, so we have to skip this test
         needs: build
         runs-on: ubuntu-latest
         strategy:
