@@ -28,6 +28,7 @@ dependencies = [
     'ffmpy',
     'music_tag',
     "yt-dlp",
+    "eyed3"
 ]
 dynamic = ["version"]
 
