@@ -69,7 +69,7 @@ After the first time:
 ## Quick guide (from a YouTube video)
 
 + Copy the YouTube URL of the album you want to download and split
-+ Find in the YouTube comments the tracklist with start-time and title
++ Find in the YouTube comments the tracklist with start-time and title (with the --extract-track argument, this is done automatically)
 + Create a copy of the `tracks.txt.example`, rename it as `tracks.txt`
 + Open `tracks.txt`
 + Copy the tracklist in the file, adjusting for the supported formats
@@ -81,6 +81,7 @@ After the first time:
 + Wait for the Download and for the conversion
 + Wait for the splitting process to complete
 + You will find your tracks in the `./splits` folder
++ It also works on playlists, downloading and splitting them one by one
 
 ## Output Format
 
