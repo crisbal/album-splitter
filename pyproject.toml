@@ -23,7 +23,7 @@ classifiers = [
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Topic :: Multimedia :: Sound/Audio",
 ]
-requires-python = ">=3.7"
+requires-python = ">=3.12"
 dependencies = [
     'ffmpy',
     'music_tag',
