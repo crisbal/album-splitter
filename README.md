@@ -28,7 +28,7 @@ First time only:
     * Linux: `apt install ffmpeg` (or equivalent)
     * Windows: [Official website](https://ffmpeg.org/)
     * MacOS: [Official website](https://ffmpeg.org/) or `brew install ffmpeg`
-+ Install `Python 3` (a version newer or equal to `3.7` is required)
++ Install `Python 3` (a version newer or equal to `3.12` is required)
     * Linux: `apt install python3` (or equivalent)
     * Windows: [Official webiste](https://www.python.org/)
     * MacOS: You should have it already installed or `brew install python3`
